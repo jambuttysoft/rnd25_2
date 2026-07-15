@@ -1,0 +1,90 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: PoA
+        - generic [ref=e7]:
+          - generic [ref=e8]: Verification Pipeline
+          - generic [ref=e9]: Multimodal Physical Trace Analysis
+      - generic [ref=e10]:
+        - generic [ref=e13]: qwen2.5-vl-72b-instruct
+        - generic [ref=e16]: ONLINE
+        - generic [ref=e17]: 17:59:18 UTC
+    - navigation [ref=e18]:
+      - generic [ref=e19]:
+        - button "EXP_01 Equipment Verification" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: EXP_01
+          - generic [ref=e22]: Equipment Verification
+        - button "EXP_02 Hidden Asset Detection" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: EXP_02
+          - generic [ref=e26]: Hidden Asset Detection
+        - button "EXP_03 Infrastructure Integrity" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: EXP_03
+          - generic [ref=e30]: Infrastructure Integrity
+        - button "EXP_04 Scalability" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: EXP_04
+          - generic [ref=e34]: Scalability
+        - button "SMRY Summary" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: SMRY
+          - generic [ref=e38]: Summary
+  - main [ref=e40]:
+    - generic [ref=e183]:
+      - generic [ref=e184]:
+        - generic [ref=e185]:
+          - generic [ref=e186]: Experiment 02 — Capital Misclassification
+          - heading "Hidden Asset Detection" [level=1] [ref=e187]
+          - paragraph [ref=e188]: Identifies high-value capital equipment that has been misclassified as general consumables or materials in the ERP system. Recovers phantom assets and recomputes depreciation exposure.
+        - generic [ref=e189]:
+          - strong [ref=e191]: ENDPOINT
+          - generic [ref=e192]: POST /api/experiment2/scan
+          - generic [ref=e193]:
+            - strong [ref=e194]: MODEL
+            - text: VLM-72B
+      - generic [ref=e195]:
+        - generic [ref=e196]:
+          - generic [ref=e197]:
+            - generic [ref=e198]: Input Parameters
+            - generic [ref=e199]: 1 field · 1 upload
+          - generic [ref=e201]:
+            - generic [ref=e202]:
+              - generic [ref=e203]:
+                - text: ERP Category
+                - generic [ref=e204]: "*"
+              - combobox [ref=e205] [cursor=pointer]:
+                - option "Consumables"
+                - option "Materials" [selected]
+                - option "Spare Parts"
+            - generic [ref=e206]:
+              - generic [ref=e207]:
+                - text: Asset Photo
+                - generic [ref=e208]: "*"
+              - generic [ref=e231] [cursor=pointer]:
+                - img "preview" [ref=e232]
+                - generic [ref=e233]:
+                  - generic [ref=e234]: test-photo.png
+                  - generic [ref=e235]: PNG · 0 KB
+                - button "Remove" [ref=e236]:
+                  - img [ref=e237]
+            - button "Run Scan" [disabled] [ref=e216]:
+              - img [ref=e217]
+              - text: Run Scan
+        - generic [ref=e219]:
+          - generic [ref=e220]:
+            - generic [ref=e221]: Scan Results
+            - generic [ref=e222]: SCANNING…
+          - generic [ref=e240]:
+            - generic [ref=e241]:
+              - generic [ref=e242]: "1"
+              - generic [ref=e243]: Encoding photo to base64
+            - generic [ref=e244]:
+              - generic [ref=e245]: "2"
+              - generic [ref=e246]: Identifying brand signatures
+            - generic [ref=e247]:
+              - generic [ref=e248]: "3"
+              - generic [ref=e249]: Classifying capital equipment
+            - generic [ref=e250]:
+              - generic [ref=e251]: "4"
+              - generic [ref=e252]: Estimating recoverable value
+            - generic [ref=e253]:
+              - generic [ref=e254]: "5"
+              - generic [ref=e255]: Composing audit report

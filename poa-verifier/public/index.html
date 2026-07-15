@@ -1,0 +1,2899 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function() {
+      const saved = localStorage.getItem('poa-theme');
+      if (saved === 'dark' || saved === 'light') {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    })();
+  </script>
+  <title>PoA Verification Pipeline — Mission Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* =================================================================
+       DESIGN SYSTEM — Tokens, Foundations, Utilities
+       ================================================================= */
+    :root {
+      /* Base palette */
+      --bg-void: #050810;
+      --bg-base: #0a0e1a;
+      --bg-elev-1: #0f1422;
+      --bg-elev-2: #141a2c;
+      --bg-elev-3: #1a2236;
+      --bg-glass: rgba(20, 26, 44, 0.55);
+
+      /* Borders & dividers */
+      --border-faint: rgba(74, 144, 226, 0.10);
+      --border-soft: rgba(74, 144, 226, 0.18);
+      --border-strong: rgba(74, 144, 226, 0.35);
+      --border-hot: rgba(255, 140, 66, 0.45);
+
+      /* Accents */
+      --c-cyan: #4a90e2;
+      --c-cyan-glow: rgba(74, 144, 226, 0.45);
+      --c-green: #00a896;
+      --c-green-glow: rgba(0, 168, 150, 0.45);
+      --c-orange: #ff8c42;
+      --c-orange-glow: rgba(255, 140, 66, 0.45);
+      --c-red: #e74c3c;
+      --c-red-glow: rgba(231, 76, 60, 0.45);
+      --c-purple: #9b59b6;
+      --c-purple-glow: rgba(155, 89, 182, 0.45);
+      --c-amber: #ffc857;
+      --c-magenta: #ff5e8a;
+
+      /* Text */
+      --text-primary: #e6ecf5;
+      --text-secondary: #9aa7bd;
+      --text-muted: #5a6884;
+      --text-dim: #3a4560;
+
+      /* Spacing scale (4px base) */
+      --s-1: 4px;
+      --s-2: 8px;
+      --s-3: 12px;
+      --s-4: 16px;
+      --s-5: 20px;
+      --s-6: 24px;
+      --s-7: 32px;
+      --s-8: 40px;
+      --s-9: 48px;
+      --s-10: 64px;
+
+      /* Radii */
+      --r-1: 4px;
+      --r-2: 6px;
+      --r-3: 10px;
+      --r-4: 14px;
+      --r-pill: 999px;
+
+      /* Typography */
+      --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+      /* Shadows */
+      --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.35);
+      --shadow-2: 0 6px 24px rgba(0, 0, 0, 0.5);
+      --shadow-3: 0 12px 48px rgba(0, 0, 0, 0.6);
+      --shadow-glow-cyan: 0 0 32px var(--c-cyan-glow);
+      --shadow-glow-green: 0 0 32px var(--c-green-glow);
+
+      /* Background effects */
+      --grid-line: rgba(74, 144, 226, 0.04);
+      --ambient-glow: rgba(74, 144, 226, 0.10);
+      --tabnav-bg: rgba(10, 14, 26, 0.6);
+      --header-bg: linear-gradient(180deg, rgba(15, 20, 34, 0.95) 0%, rgba(10, 14, 26, 0.85) 100%);
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-fast: 180ms;
+      --dur-base: 280ms;
+      --dur-slow: 480ms;
+    }
+
+    [data-theme="light"] {
+      --bg-void: #f5f7fa;
+      --bg-base: #ffffff;
+      --bg-elev-1: #f8fafc;
+      --bg-elev-2: #f1f5f9;
+      --bg-elev-3: #e2e8f0;
+      --bg-glass: rgba(255, 255, 255, 0.75);
+
+      --border-faint: rgba(74, 144, 226, 0.12);
+      --border-soft: rgba(74, 144, 226, 0.25);
+      --border-strong: rgba(74, 144, 226, 0.45);
+      --border-hot: rgba(255, 140, 66, 0.55);
+
+      --c-cyan: #2563eb;
+      --c-cyan-glow: rgba(37, 99, 235, 0.25);
+      --c-green: #059669;
+      --c-green-glow: rgba(5, 150, 105, 0.25);
+      --c-orange: #ea580c;
+      --c-orange-glow: rgba(234, 88, 12, 0.25);
+      --c-red: #dc2626;
+      --c-red-glow: rgba(220, 38, 38, 0.25);
+      --c-purple: #7c3aed;
+      --c-purple-glow: rgba(124, 58, 237, 0.25);
+      --c-amber: #d97706;
+      --c-magenta: #db2777;
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --text-dim: #cbd5e1;
+
+      --shadow-1: 0 2px 8px rgba(15, 23, 42, 0.08);
+      --shadow-2: 0 6px 24px rgba(15, 23, 42, 0.12);
+      --shadow-3: 0 12px 48px rgba(15, 23, 42, 0.16);
+      --shadow-glow-cyan: 0 0 32px var(--c-cyan-glow);
+      --shadow-glow-green: 0 0 32px var(--c-green-glow);
+
+      --grid-line: rgba(37, 99, 235, 0.08);
+      --ambient-glow: rgba(37, 99, 235, 0.12);
+      --tabnav-bg: rgba(255, 255, 255, 0.75);
+      --header-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.95) 100%);
+    }
+
+    /* =================================================================
+       Reset & Base
+       ================================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-void);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Subtle technical grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 80%);
+    }
+
+    /* Ambient gradient orb in upper area */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      max-width: 800px;
+      max-height: 800px;
+      background: radial-gradient(circle, var(--ambient-glow) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    button, input, select, textarea { font-family: inherit; color: inherit; }
+    button { cursor: pointer; background: none; border: none; }
+    input, select, textarea { background: var(--bg-elev-1); }
+
+    ::selection { background: var(--c-cyan); color: var(--bg-void); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--bg-elev-3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--c-cyan); }
+
+    /* =================================================================
+       App Shell
+       ================================================================= */
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--header-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: var(--s-5) var(--s-7);
+      display: flex;
+      align-items: center;
+      gap: var(--s-6);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--s-3);
+    }
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--r-2);
+      background: linear-gradient(135deg, var(--c-cyan) 0%, var(--c-purple) 100%);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      box-shadow: 0 0 24px var(--c-cyan-glow);
+      position: relative;
+    }
+    .brand-mark::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: var(--r-2);
+      border: 1px solid var(--c-cyan);
+      opacity: 0.4;
+      animation: pulse-ring 2.4s var(--ease-in-out) infinite;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.15); opacity: 0; }
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-title {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .header-status {
+      display: flex;
+      gap: var(--s-5);
+      margin-left: auto;
+      align-items: center;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: var(--s-2);
+      padding: var(--s-1) var(--s-3);
+      background: var(--bg-elev-2);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-pill);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--c-green);
+      box-shadow: 0 0 8px var(--c-green-glow);
+      animation: pulse-dot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .status-pill--hot .status-dot { background: var(--c-orange); box-shadow: 0 0 8px var(--c-orange-glow); }
+
+    .clock {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      min-width: 70px;
+    }
+
+    .theme-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--r-2);
+      border: 1px solid var(--border-soft);
+      background: var(--bg-elev-1);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all var(--dur-fast) var(--ease-out);
+      position: relative;
+    }
+    .theme-toggle:hover {
+      background: var(--bg-elev-3);
+      color: var(--c-cyan);
+      border-color: var(--c-cyan);
+    }
+    .theme-toggle .theme-icon {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    }
+    .theme-icon--moon { opacity: 0; transform: scale(0.7) rotate(-30deg); }
+    .theme-icon--sun { opacity: 1; transform: scale(1) rotate(0deg); }
+    [data-theme="dark"] .theme-icon--sun { opacity: 0; transform: scale(0.7) rotate(30deg); }
+    [data-theme="dark"] .theme-icon--moon { opacity: 1; transform: scale(1) rotate(0deg); }
+
+    /* ---- Tab Navigation ---- */
+    .tabnav {
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--tabnav-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .tabnav-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 var(--s-7);
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabnav-inner::-webkit-scrollbar { display: none; }
+
+    .tab {
+      position: relative;
+      padding: var(--s-4) var(--s-5);
+      display: flex;
+      align-items: center;
+      gap: var(--s-2);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.01em;
+      border-bottom: 2px solid transparent;
+      transition: color var(--dur-fast) var(--ease-out);
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text-primary); }
+    .tab.is-active {
+      color: var(--c-cyan);
+      border-bottom-color: var(--c-cyan);
+    }
+    .tab.is-active .tab-num { color: var(--c-cyan); }
+    .tab-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+    .tab-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity var(--dur-fast) var(--ease-out);
+    }
+    .tab.is-active .tab-dot { opacity: 1; box-shadow: 0 0 6px currentColor; }
+
+    /* =================================================================
+       Main Layout
+       ================================================================= */
+    .main {
+      flex: 1;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      padding: var(--s-7);
+    }
+    .panel {
+      display: none;
+      animation: panel-in var(--dur-slow) var(--ease-out);
+    }
+    .panel.is-active { display: block; }
+    @keyframes panel-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Panel Header ---- */
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--s-6);
+      margin-bottom: var(--s-7);
+      padding-bottom: var(--s-5);
+      border-bottom: 1px dashed var(--border-soft);
+    }
+    .panel-head-title {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-2);
+    }
+    .panel-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--c-cyan);
+      display: flex;
+      align-items: center;
+      gap: var(--s-2);
+    }
+    .panel-eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--c-cyan);
+    }
+    .panel-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+    .panel-desc {
+      color: var(--text-secondary);
+      font-size: 14px;
+      max-width: 600px;
+      margin-top: var(--s-1);
+    }
+    .panel-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-1);
+    }
+    .panel-id strong { color: var(--text-secondary); font-weight: 500; }
+
+    /* ---- Grid: form / results ---- */
+    .grid-split {
+      display: grid;
+      grid-template-columns: minmax(360px, 5fr) minmax(0, 7fr);
+      gap: var(--s-6);
+    }
+    @media (max-width: 1024px) {
+      .grid-split { grid-template-columns: 1fr; }
+    }
+
+    /* =================================================================
+       Card
+       ================================================================= */
+    .card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-2);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--c-cyan-glow), transparent);
+      opacity: 0.6;
+    }
+    .card-head {
+      padding: var(--s-4) var(--s-5);
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s-3);
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: var(--s-2);
+    }
+    .card-title::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--c-cyan);
+      border-radius: 1px;
+      box-shadow: 0 0 6px var(--c-cyan-glow);
+    }
+    .card-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+    .card-body {
+      padding: var(--s-5);
+    }
+    .card-body--tight { padding: var(--s-3) var(--s-4); }
+
+    /* =================================================================
+       Forms
+       ================================================================= */
+    .field-grid {
+      display: grid;
+      gap: var(--s-4);
+    }
+    .field-grid--2 { grid-template-columns: 1fr 1fr; }
+    .field-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 600px) {
+      .field-grid--2, .field-grid--3 { grid-template-columns: 1fr; }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-2);
+    }
+    .field-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--s-1);
+    }
+    .field-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-faint);
+    }
+    .field-required { color: var(--c-orange); }
+
+    .input, .select, .textarea {
+      width: 100%;
+      background: var(--bg-elev-1);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-2);
+      padding: var(--s-3) var(--s-3);
+      font-size: 13px;
+      color: var(--text-primary);
+      transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+      font-family: var(--font-sans);
+    }
+    .input:focus, .select:focus, .textarea:focus {
+      outline: none;
+      border-color: var(--c-cyan);
+      background: var(--bg-elev-2);
+      box-shadow: 0 0 0 3px var(--c-cyan-glow);
+    }
+    .input::placeholder, .textarea::placeholder { color: var(--text-dim); }
+    .input--mono { font-family: var(--font-mono); }
+
+    .select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a6884' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: var(--s-7);
+      cursor: pointer;
+    }
+    .select option { background: var(--bg-elev-2); color: var(--text-primary); }
+
+    /* =================================================================
+       Drop Zone
+       ================================================================= */
+    .dropzone {
+      position: relative;
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--r-3);
+      padding: var(--s-7) var(--s-5);
+      text-align: center;
+      background: rgba(74, 144, 226, 0.02);
+      transition: all var(--dur-base) var(--ease-out);
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .dropzone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, var(--c-cyan-glow) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity var(--dur-base) var(--ease-out);
+    }
+    .dropzone:hover, .dropzone.is-drag {
+      border-color: var(--c-cyan);
+      background: rgba(74, 144, 226, 0.06);
+    }
+    .dropzone:hover::before, .dropzone.is-drag::before { opacity: 0.3; }
+    .dropzone.is-loaded { padding: var(--s-4); border-style: solid; border-color: var(--c-green); background: rgba(0, 168, 150, 0.04); }
+    .dropzone-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto var(--s-3);
+      border-radius: var(--r-2);
+      background: var(--bg-elev-2);
+      border: 1px solid var(--border-soft);
+      display: grid;
+      place-items: center;
+      color: var(--c-cyan);
+      position: relative;
+      z-index: 1;
+    }
+    .dropzone.is-loaded .dropzone-icon { background: rgba(0, 168, 150, 0.1); color: var(--c-green); border-color: var(--c-green); }
+    .dropzone-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      position: relative;
+      z-index: 1;
+    }
+    .dropzone-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: var(--s-1);
+      font-family: var(--font-mono);
+      letter-spacing: 0.05em;
+      position: relative;
+      z-index: 1;
+    }
+    .dropzone input[type=file] { display: none; }
+
+    .preview {
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+    .dropzone.is-loaded .dropzone-prompt { display: none; }
+    .dropzone.is-loaded .preview { display: flex; align-items: center; gap: var(--s-3); }
+    .preview-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: var(--r-2);
+      border: 1px solid var(--border-strong);
+      flex-shrink: 0;
+    }
+    .preview-info { flex: 1; min-width: 0; text-align: left; }
+    .preview-name {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .preview-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .preview-clear {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--r-1);
+      background: var(--bg-elev-3);
+      color: var(--text-secondary);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: all var(--dur-fast) var(--ease-out);
+    }
+    .preview-clear:hover { background: var(--c-red); color: white; }
+
+    .dropzone--small {
+      padding: var(--s-5) var(--s-4);
+    }
+    .dropzone--small .dropzone-icon { width: 32px; height: 32px; margin-bottom: var(--s-2); }
+
+    /* =================================================================
+       Button
+       ================================================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s-2);
+      padding: var(--s-3) var(--s-5);
+      border-radius: var(--r-2);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-family: var(--font-mono);
+      border: 1px solid transparent;
+      transition: all var(--dur-fast) var(--ease-out);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn--primary {
+      background: linear-gradient(135deg, var(--c-cyan) 0%, #5ba3f0 100%);
+      color: var(--bg-void);
+      box-shadow: 0 4px 16px var(--c-cyan-glow);
+    }
+    .btn--primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px var(--c-cyan-glow);
+    }
+    .btn--primary:active { transform: translateY(0); }
+    .btn--primary:disabled {
+      background: var(--bg-elev-3);
+      color: var(--text-muted);
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn--block { width: 100%; padding: var(--s-4) var(--s-5); }
+    .btn--ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border-soft);
+    }
+    .btn--ghost:hover { color: var(--text-primary); border-color: var(--c-cyan); }
+    .btn-icon { width: 14px; height: 14px; }
+
+    /* =================================================================
+       Results panel
+       ================================================================= */
+    .results-empty {
+      padding: var(--s-9) var(--s-5);
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .results-empty-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto var(--s-3);
+      border-radius: var(--r-3);
+      background: var(--bg-elev-2);
+      border: 1px solid var(--border-soft);
+      display: grid;
+      place-items: center;
+      color: var(--text-muted);
+    }
+    .results-empty-text {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .results-empty-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      letter-spacing: 0.05em;
+      margin-top: var(--s-1);
+    }
+
+    /* Progress indicator */
+    .progress-card {
+      padding: var(--s-5);
+    }
+    .progress-steps {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-2);
+      margin-bottom: var(--s-4);
+    }
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: var(--s-3);
+      padding: var(--s-2) var(--s-3);
+      border-radius: var(--r-2);
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      background: var(--bg-elev-1);
+      border: 1px solid var(--border-faint);
+      transition: all var(--dur-fast) var(--ease-out);
+    }
+    .progress-step.is-active {
+      color: var(--c-cyan);
+      border-color: var(--border-strong);
+      background: rgba(74, 144, 226, 0.06);
+    }
+    .progress-step.is-done {
+      color: var(--c-green);
+      border-color: rgba(0, 168, 150, 0.3);
+    }
+    .step-bullet {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--bg-elev-3);
+      display: grid;
+      place-items: center;
+      font-size: 9px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .progress-step.is-active .step-bullet {
+      background: var(--c-cyan);
+      color: var(--bg-void);
+      box-shadow: 0 0 8px var(--c-cyan-glow);
+    }
+    .progress-step.is-done .step-bullet {
+      background: var(--c-green);
+      color: var(--bg-void);
+    }
+    .step-spinner {
+      width: 8px;
+      height: 8px;
+      border: 1.5px solid var(--bg-void);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--bg-elev-1);
+      border-radius: var(--r-pill);
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--c-cyan), var(--c-purple));
+      width: 0%;
+      transition: width var(--dur-base) var(--ease-out);
+      box-shadow: 0 0 12px var(--c-cyan-glow);
+    }
+
+    /* Result metrics grid */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--s-3);
+      margin-bottom: var(--s-5);
+    }
+    .metric {
+      padding: var(--s-4);
+      background: var(--bg-elev-1);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-2);
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--metric-color, var(--c-cyan));
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      margin-bottom: var(--s-2);
+    }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--metric-color, var(--text-primary));
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .metric-suffix {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 2px;
+    }
+    .metric-sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      margin-top: var(--s-1);
+    }
+
+    /* Verdict / status banner */
+    .verdict {
+      display: flex;
+      align-items: center;
+      gap: var(--s-3);
+      padding: var(--s-4);
+      border-radius: var(--r-2);
+      border: 1px solid;
+      margin-bottom: var(--s-5);
+    }
+    .verdict--ok { --v-color: var(--c-green); }
+    .verdict--warn { --v-color: var(--c-orange); }
+    .verdict--err { --v-color: var(--c-red); }
+    .verdict--info { --v-color: var(--c-cyan); }
+    .verdict {
+      background: color-mix(in srgb, var(--v-color) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--v-color) 30%, transparent);
+      color: var(--v-color);
+    }
+    .verdict-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-2);
+      background: var(--v-color);
+      display: grid;
+      place-items: center;
+      color: var(--bg-void);
+      flex-shrink: 0;
+      box-shadow: 0 0 20px color-mix(in srgb, var(--v-color) 40%, transparent);
+    }
+    .verdict-mark svg { width: 16px; height: 16px; }
+    .verdict-text { flex: 1; }
+    .verdict-title { font-weight: 700; font-size: 14px; letter-spacing: 0.02em; }
+    .verdict-sub { font-size: 11px; color: var(--text-secondary); font-family: var(--font-mono); margin-top: 2px; }
+
+    /* Detected items list */
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-2);
+    }
+    .item-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--s-3);
+      align-items: center;
+      padding: var(--s-3);
+      background: var(--bg-elev-1);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-2);
+    }
+    .item-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      width: 24px;
+    }
+    .item-body { min-width: 0; }
+    .item-name { font-weight: 600; font-size: 13px; color: var(--text-primary); }
+    .item-sub { font-size: 11px; color: var(--text-secondary); font-family: var(--font-mono); margin-top: 2px; }
+    .item-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--r-pill);
+      border: 1px solid;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .item-badge--ok { color: var(--c-green); border-color: var(--c-green); background: rgba(0, 168, 150, 0.1); }
+    .item-badge--warn { color: var(--c-orange); border-color: var(--c-orange); background: rgba(255, 140, 66, 0.1); }
+    .item-badge--err { color: var(--c-red); border-color: var(--c-red); background: rgba(231, 76, 60, 0.1); }
+    .item-badge--info { color: var(--c-cyan); border-color: var(--c-cyan); background: rgba(74, 144, 226, 0.1); }
+    .item-badge--purple { color: var(--c-purple); border-color: var(--c-purple); background: rgba(155, 89, 182, 0.1); }
+
+    /* Integration indicators (Exp 3) */
+    .indicators {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s-3);
+      margin-bottom: var(--s-5);
+    }
+    @media (max-width: 600px) { .indicators { grid-template-columns: 1fr; } }
+    .indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--s-3);
+      padding: var(--s-3) var(--s-4);
+      background: var(--bg-elev-1);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-2);
+    }
+    .indicator-led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--text-dim);
+    }
+    .indicator-led.is-on { background: var(--c-green); box-shadow: 0 0 10px var(--c-green-glow); }
+    .indicator-led.is-off { background: var(--c-red); box-shadow: 0 0 8px var(--c-red-glow); }
+    .indicator-body { flex: 1; min-width: 0; }
+    .indicator-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .indicator-sub { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+    .indicator-conf {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Comparison (Exp 4) */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-4);
+      margin-bottom: var(--s-5);
+    }
+    @media (max-width: 700px) { .compare-grid { grid-template-columns: 1fr; } }
+    .compare-card {
+      padding: var(--s-4);
+      background: var(--bg-elev-1);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-2);
+      position: relative;
+    }
+    .compare-card--baseline { border-top: 2px solid var(--c-orange); }
+    .compare-card--optimized { border-top: 2px solid var(--c-green); }
+    .compare-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      margin-bottom: var(--s-2);
+    }
+    .compare-name { font-weight: 700; font-size: 14px; margin-bottom: var(--s-3); }
+    .compare-card--baseline .compare-name { color: var(--c-orange); }
+    .compare-card--optimized .compare-name { color: var(--c-green); }
+    .compare-rows { display: flex; flex-direction: column; gap: var(--s-2); }
+    .compare-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: var(--s-2) 0;
+      border-bottom: 1px dashed var(--border-faint);
+      font-size: 12px;
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-key { color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .compare-val { font-family: var(--font-mono); font-weight: 600; color: var(--text-primary); }
+
+    .savings-banner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--s-4);
+      padding: var(--s-5);
+      background: linear-gradient(135deg, rgba(0, 168, 150, 0.06) 0%, rgba(74, 144, 226, 0.04) 100%);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-2);
+      margin-bottom: var(--s-5);
+    }
+    .savings-cell { text-align: center; }
+    .savings-label { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: var(--s-2); }
+    .savings-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--c-green);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .savings-value--orange { color: var(--c-orange); }
+    .savings-value--purple { color: var(--c-purple); }
+
+    /* JSON viewer / log box */
+    .logbox {
+      background: var(--bg-void);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-2);
+      overflow: hidden;
+    }
+    .logbox-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--s-2) var(--s-3);
+      background: var(--bg-elev-1);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .logbox-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .logbox-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--bg-elev-3);
+    }
+    .logbox-dots span:nth-child(1) { background: #e74c3c; opacity: 0.6; }
+    .logbox-dots span:nth-child(2) { background: #ffc857; opacity: 0.6; }
+    .logbox-dots span:nth-child(3) { background: #00a896; opacity: 0.6; }
+    .logbox-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    .logbox-body {
+      padding: var(--s-3) var(--s-4);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .logbox-body .k { color: var(--c-cyan); }
+    .logbox-body .s { color: var(--c-green); }
+    .logbox-body .n { color: var(--c-orange); }
+    .logbox-body .b { color: var(--c-purple); }
+    .logbox-body .null { color: var(--text-dim); }
+
+    /* Sub-section header */
+    .subhead {
+      display: flex;
+      align-items: center;
+      gap: var(--s-3);
+      margin: var(--s-5) 0 var(--s-3);
+    }
+    .subhead-text {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .subhead-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-soft), transparent);
+    }
+
+    /* =================================================================
+       Summary tab
+       ================================================================= */
+    .summary-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--s-4);
+      margin-bottom: var(--s-6);
+    }
+    @media (max-width: 800px) { .summary-hero { grid-template-columns: 1fr; } }
+    .hero-card {
+      padding: var(--s-5);
+      background: var(--bg-glass);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-glow, var(--c-cyan-glow)), transparent);
+    }
+    .hero-card--cyan { --accent-glow: var(--c-cyan-glow); }
+    .hero-card--green { --accent-glow: var(--c-green-glow); }
+    .hero-card--purple { --accent-glow: var(--c-purple-glow); }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      margin-bottom: var(--s-3);
+    }
+    .hero-value {
+      font-family: var(--font-mono);
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .hero-card--green .hero-value { color: var(--c-green); }
+    .hero-card--purple .hero-value { color: var(--c-purple); }
+    .hero-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      margin-top: var(--s-2);
+      letter-spacing: 0.05em;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .summary-table thead th {
+      text-align: left;
+      padding: var(--s-3) var(--s-4);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-strong);
+    }
+    .summary-table tbody td {
+      padding: var(--s-4);
+      border-bottom: 1px solid var(--border-faint);
+      vertical-align: middle;
+    }
+    .summary-table tbody tr {
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .summary-table tbody tr:hover { background: rgba(74, 144, 226, 0.04); }
+    .st-name { display: flex; align-items: center; gap: var(--s-3); }
+    .st-num {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--r-2);
+      background: var(--bg-elev-2);
+      border: 1px solid var(--border-soft);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--c-cyan);
+      flex-shrink: 0;
+    }
+    .st-name-text { font-weight: 600; color: var(--text-primary); }
+    .st-cell-mono { font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); }
+    .st-cell-dim { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+    .st-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s-1);
+      padding: 2px var(--s-2);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: var(--r-pill);
+      border: 1px solid;
+    }
+    .st-pill--ok { color: var(--c-green); border-color: rgba(0, 168, 150, 0.4); background: rgba(0, 168, 150, 0.1); }
+    .st-pill--dot::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 4px currentColor;
+    }
+
+    /* =================================================================
+       Toast / error
+       ================================================================= */
+    .error-banner {
+      padding: var(--s-3) var(--s-4);
+      background: rgba(231, 76, 60, 0.1);
+      border: 1px solid var(--c-red);
+      border-radius: var(--r-2);
+      color: var(--c-red);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin-top: var(--s-3);
+      display: flex;
+      align-items: center;
+      gap: var(--s-2);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(5, 8, 16, 0.85); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .modal-overlay.is-open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--bg-elev-1); border: 1px solid var(--border-soft);
+      border-radius: 14px; max-width: 640px; width: 92vw; max-height: 85vh;
+      overflow-y: auto; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-header {
+      padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .modal-close {
+      border: 1px solid var(--border-soft); border-radius: 8px;
+      padding: 6px 12px; font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; transition: all .2s;
+    }
+    .modal-close:hover { background: var(--c-cyan); color: var(--bg-base); }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-body h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: var(--c-cyan); }
+    .modal-body h3:first-child { margin-top: 0; }
+    .modal-body p, .modal-body li { font-size: 13px; line-height: 1.8; color: var(--text-secondary); }
+    .modal-body ul { padding-left: 18px; margin: 8px 0; }
+    .modal-body .step-flow {
+      display: flex; flex-direction: column; gap: 10px; margin: 12px 0;
+    }
+    .modal-body .step {
+      display: flex; gap: 12px; padding: 12px 14px; background: var(--bg-elev-2);
+      border-radius: 8px; border-left: 3px solid var(--c-cyan);
+    }
+    .modal-body .step-num {
+      font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--c-cyan);
+      min-width: 28px; line-height: 1.2;
+    }
+    .modal-body .step-title { font-weight: 600; font-size: 13px; color: var(--text-primary); }
+    .modal-body .step-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .info-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-soft);
+      background: var(--bg-elev-2); color: var(--text-secondary);
+      font-size: 12px; cursor: pointer; transition: all .2s;
+    }
+    .info-btn:hover { background: var(--bg-elev-3); color: var(--c-cyan); border-color: var(--c-cyan); }
+    .info-btn svg { opacity: 0.7; }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .header-inner { flex-wrap: wrap; padding: var(--s-3) var(--s-4); }
+      .header-status { width: 100%; justify-content: flex-start; }
+      .main { padding: var(--s-4); }
+      .panel-head { flex-direction: column; }
+      .panel-title { font-size: 22px; }
+      .field-grid--3 { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- =================================================================
+         Header
+         ================================================================= -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-mark">PoA</div>
+          <div class="brand-text">
+            <div class="brand-title">Verification Pipeline</div>
+            <div class="brand-sub">Multimodal Physical Trace Analysis</div>
+          </div>
+        </div>
+        <div class="header-status">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span id="health-model">qwen2.5-vl-72b</span>
+          </div>
+          <div class="status-pill status-pill--hot" id="health-pill">
+            <span class="status-dot"></span>
+            <span id="health-text">CHECKING</span>
+          </div>
+          <button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle dark mode">
+            <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          <div class="clock" id="clock">--:--:--</div>
+        </div>
+      </div>
+
+      <nav class="tabnav">
+        <div class="tabnav-inner" id="tabnav">
+          <button class="tab is-active" data-tab="exp1">
+            <span class="tab-num">EXP_01</span>
+            <span>Equipment Verification</span>
+            <span class="tab-dot"></span>
+          </button>
+          <button class="tab" data-tab="exp2">
+            <span class="tab-num">EXP_02</span>
+            <span>Hidden Asset Detection</span>
+            <span class="tab-dot"></span>
+          </button>
+          <button class="tab" data-tab="exp3">
+            <span class="tab-num">EXP_03</span>
+            <span>Infrastructure Integrity</span>
+            <span class="tab-dot"></span>
+          </button>
+          <button class="tab" data-tab="exp4">
+            <span class="tab-num">EXP_04</span>
+            <span>Scalability</span>
+            <span class="tab-dot"></span>
+          </button>
+          <button class="tab" data-tab="summary">
+            <span class="tab-num">SMRY</span>
+            <span>Summary</span>
+            <span class="tab-dot"></span>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main">
+      <!-- =============================================================
+           EXPERIMENT 1 — Equipment Verification
+           ============================================================= -->
+      <section class="panel is-active" data-panel="exp1">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <div class="panel-eyebrow">Experiment 01 — Cross-Reference Trace</div>
+            <h1 class="panel-title">Equipment Verification</h1>
+            <p class="panel-desc">
+              Cross-references equipment visible in photographs against financial receipt line items.
+              Detects phantom invoicing, duplicate billing, and missing serial numbers using vision-language analysis.
+            </p>
+          </div>
+          <div class="panel-id">
+            <span><strong>ENDPOINT</strong></span>
+            <span>POST /api/experiment1/verify</span>
+            <span><strong>MODEL</strong> VLM-72B</span>
+          </div>
+          <button class="info-btn" onclick="openInfoModal(1)" style="align-self:flex-start;margin-top:4px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            How it works
+          </button>
+        </div>
+
+        <div class="grid-split">
+          <!-- Form column -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Input Parameters</div>
+              <div class="card-meta">4 fields · 2 uploads</div>
+            </div>
+            <div class="card-body">
+              <div class="field-grid">
+                <div class="field-grid field-grid--2">
+                  <div class="field">
+                    <label class="field-label">Item Name <span class="field-required">*</span></label>
+                    <input class="input" type="text" id="exp1-item" placeholder="Dell PowerEdge R750 Server" value="Dell PowerEdge R750 Server" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Amount</label>
+                    <input class="input input--mono" type="text" id="exp1-amount" placeholder="$12,450.00" value="$12,450.00" />
+                  </div>
+                </div>
+                <div class="field-grid field-grid--2">
+                  <div class="field">
+                    <label class="field-label">Purchase Date</label>
+                    <input class="input input--mono" type="date" id="exp1-date" value="2026-03-15" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Vendor</label>
+                    <input class="input" type="text" id="exp1-vendor" placeholder="Dell Technologies" value="Dell Technologies" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label">Equipment Photo <span class="field-required">*</span></label>
+                  <div class="dropzone" data-dropzone="exp1-photo">
+                    <input type="file" accept="image/jpeg,image/png,image/webp" data-input="exp1-photo" />
+                    <div class="dropzone-prompt">
+                      <div class="dropzone-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                      </div>
+                      <div class="dropzone-title">Drop photo or click to upload</div>
+                      <div class="dropzone-sub">JPEG · PNG · WEBP · MAX 20MB</div>
+                    </div>
+                    <div class="preview">
+                      <img class="preview-img" alt="preview" />
+                      <div class="preview-info">
+                        <div class="preview-name"></div>
+                        <div class="preview-meta"></div>
+                      </div>
+                      <button class="preview-clear" title="Remove">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label">Receipt (optional — OCR)</label>
+                  <div class="dropzone dropzone--small" data-dropzone="exp1-receipt">
+                    <input type="file" accept="image/jpeg,image/png,image/webp" data-input="exp1-receipt" />
+                    <div class="dropzone-prompt">
+                      <div class="dropzone-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                      </div>
+                      <div class="dropzone-title">Upload receipt for OCR</div>
+                      <div class="dropzone-sub">AUTO-EXTRACT LINE ITEMS</div>
+                    </div>
+                    <div class="preview">
+                      <img class="preview-img" alt="preview" />
+                      <div class="preview-info">
+                        <div class="preview-name"></div>
+                        <div class="preview-meta"></div>
+                      </div>
+                      <button class="preview-clear" title="Remove">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn--primary btn--block" id="exp1-run">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Run Analysis
+                </button>
+                <div id="exp1-error"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results column -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Analysis Results</div>
+              <div class="card-meta" id="exp1-status">AWAITING INPUT</div>
+            </div>
+            <div class="card-body" id="exp1-results">
+              <div class="results-empty">
+                <div class="results-empty-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <div class="results-empty-text">No analysis run yet</div>
+                <div class="results-empty-sub">CONFIGURE INPUTS &nbsp;·&nbsp; EXECUTE&nbsp;[RUN_ANALYSIS]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           EXPERIMENT 2 — Hidden Asset Detection
+           ============================================================= -->
+      <section class="panel" data-panel="exp2">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <div class="panel-eyebrow">Experiment 02 — Capital Misclassification</div>
+            <h1 class="panel-title">Hidden Asset Detection</h1>
+            <p class="panel-desc">
+              Identifies high-value capital equipment that has been misclassified as general consumables
+              or materials in the ERP system. Recovers phantom assets and recomputes depreciation exposure.
+            </p>
+          </div>
+          <div class="panel-id">
+            <span><strong>ENDPOINT</strong></span>
+            <span>POST /api/experiment2/scan</span>
+            <span><strong>MODEL</strong> VLM-72B</span>
+          </div>
+          <button class="info-btn" onclick="openInfoModal(2)" style="align-self:flex-start;margin-top:4px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            How it works
+          </button>
+        </div>
+
+        <div class="grid-split">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Input Parameters</div>
+              <div class="card-meta">1 field · 1 upload</div>
+            </div>
+            <div class="card-body">
+              <div class="field-grid">
+                <div class="field">
+                  <label class="field-label">ERP Category <span class="field-required">*</span></label>
+                  <select class="select" id="exp2-category">
+                    <option value="Consumables">Consumables</option>
+                    <option value="Materials" selected>Materials</option>
+                    <option value="Spare Parts">Spare Parts</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="field-label">Asset Photo <span class="field-required">*</span></label>
+                  <div class="dropzone" data-dropzone="exp2-photo">
+                    <input type="file" accept="image/jpeg,image/png,image/webp" data-input="exp2-photo" />
+                    <div class="dropzone-prompt">
+                      <div class="dropzone-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                      </div>
+                      <div class="dropzone-title">Drop photo or click to upload</div>
+                      <div class="dropzone-sub">SCAN FOR CAPITAL EQUIPMENT</div>
+                    </div>
+                    <div class="preview">
+                      <img class="preview-img" alt="preview" />
+                      <div class="preview-info">
+                        <div class="preview-name"></div>
+                        <div class="preview-meta"></div>
+                      </div>
+                      <button class="preview-clear" title="Remove">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn--primary btn--block" id="exp2-run">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Run Scan
+                </button>
+                <div id="exp2-error"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Scan Results</div>
+              <div class="card-meta" id="exp2-status">AWAITING INPUT</div>
+            </div>
+            <div class="card-body" id="exp2-results">
+              <div class="results-empty">
+                <div class="results-empty-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <div class="results-empty-text">No scan run yet</div>
+                <div class="results-empty-sub">UPLOAD PHOTO &nbsp;·&nbsp; EXECUTE&nbsp;[RUN_SCAN]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           EXPERIMENT 3 — Infrastructure Integrity
+           ============================================================= -->
+      <section class="panel" data-panel="exp3">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <div class="panel-eyebrow">Experiment 03 — Functional Integration Audit</div>
+            <h1 class="panel-title">Infrastructure Integrity</h1>
+            <p class="panel-desc">
+              Verifies that mounted equipment is not just physically present but functionally integrated.
+              Catches fraudulent acceptance certificates where hardware is installed but never cabled up.
+            </p>
+          </div>
+          <div class="panel-id">
+            <span><strong>ENDPOINT</strong></span>
+            <span>POST /api/experiment3/inspect</span>
+            <span><strong>MODEL</strong> VLM-72B</span>
+          </div>
+          <button class="info-btn" onclick="openInfoModal(3)" style="align-self:flex-start;margin-top:4px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            How it works
+          </button>
+        </div>
+
+        <div class="grid-split">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Input Parameters</div>
+              <div class="card-meta">1 field · 1 upload</div>
+            </div>
+            <div class="card-body">
+              <div class="field-grid">
+                <div class="field">
+                  <label class="field-label">Node Label <span class="field-required">*</span></label>
+                  <input class="input input--mono" type="text" id="exp3-node" placeholder="RACK-14-DC1" value="RACK-14-DC1" />
+                </div>
+                <div class="field">
+                  <label class="field-label">Rack Photo <span class="field-required">*</span></label>
+                  <div class="dropzone" data-dropzone="exp3-photo">
+                    <input type="file" accept="image/jpeg,image/png,image/webp" data-input="exp3-photo" />
+                    <div class="dropzone-prompt">
+                      <div class="dropzone-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                      </div>
+                      <div class="dropzone-title">Drop rack photo or click to upload</div>
+                      <div class="dropzone-sub">CHECK 4 INTEGRATION INDICATORS</div>
+                    </div>
+                    <div class="preview">
+                      <img class="preview-img" alt="preview" />
+                      <div class="preview-info">
+                        <div class="preview-name"></div>
+                        <div class="preview-meta"></div>
+                      </div>
+                      <button class="preview-clear" title="Remove">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn--primary btn--block" id="exp3-run">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Run Inspection
+                </button>
+                <div id="exp3-error"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Inspection Results</div>
+              <div class="card-meta" id="exp3-status">AWAITING INPUT</div>
+            </div>
+            <div class="card-body" id="exp3-results">
+              <div class="results-empty">
+                <div class="results-empty-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <div class="results-empty-text">No inspection run yet</div>
+                <div class="results-empty-sub">UPLOAD PHOTO &nbsp;·&nbsp; EXECUTE&nbsp;[RUN_INSPECT]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           EXPERIMENT 4 — Scalability
+           ============================================================= -->
+      <section class="panel" data-panel="exp4">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <div class="panel-eyebrow">Experiment 04 — Throughput Benchmark</div>
+            <h1 class="panel-title">Scalability & Optimization</h1>
+            <p class="panel-desc">
+              Compares synchronous baseline vs vLLM continuous-batching throughput on large image corpora.
+              Models cost-per-image, GPU utilization, latency, and end-to-end speedup.
+            </p>
+          </div>
+          <div class="panel-id">
+            <span><strong>ENDPOINT</strong></span>
+            <span>POST /api/experiment4/benchmark</span>
+            <span><strong>MODE</strong> SIMULATED</span>
+          </div>
+          <button class="info-btn" onclick="openInfoModal(4)" style="align-self:flex-start;margin-top:4px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            How it works
+          </button>
+        </div>
+
+        <div class="grid-split">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Benchmark Parameters</div>
+              <div class="card-meta">2 fields · 0 uploads</div>
+            </div>
+            <div class="card-body">
+              <div class="field-grid">
+                <div class="field-grid field-grid--2">
+                  <div class="field">
+                    <label class="field-label">Image Count</label>
+                    <input class="input input--mono" type="number" id="exp4-count" value="10000" min="100" max="1000000" step="100" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Mode</label>
+                    <select class="select" id="exp4-mode">
+                      <option value="both" selected>Both (compare)</option>
+                      <option value="baseline">Baseline only</option>
+                      <option value="optimized">Optimized only</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label">Workload Profile</label>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn--ghost" type="button" data-preset="small">1K</button>
+                    <button class="btn btn--ghost" type="button" data-preset="mid">10K</button>
+                    <button class="btn btn--ghost" type="button" data-preset="large">100K</button>
+                    <button class="btn btn--ghost" type="button" data-preset="huge">1M</button>
+                  </div>
+                </div>
+                <button class="btn btn--primary btn--block" id="exp4-run">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Run Benchmark
+                </button>
+                <div id="exp4-error"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Benchmark Results</div>
+              <div class="card-meta" id="exp4-status">AWAITING INPUT</div>
+            </div>
+            <div class="card-body" id="exp4-results">
+              <div class="results-empty">
+                <div class="results-empty-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <div class="results-empty-text">No benchmark run yet</div>
+                <div class="results-empty-sub">SET PARAMS &nbsp;·&nbsp; EXECUTE&nbsp;[RUN_BENCH]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           SUMMARY
+           ============================================================= -->
+      <section class="panel" data-panel="summary">
+        <div class="panel-head">
+          <div class="panel-head-title">
+            <div class="panel-eyebrow">Consolidated View — Pipeline Telemetry</div>
+            <h1 class="panel-title">Summary</h1>
+            <p class="panel-desc">
+              Aggregated view of all four experiments with key performance indicators and the
+              headline estimated financial impact of the verification pipeline.
+            </p>
+          </div>
+          <div class="panel-id">
+            <span><strong>ENDPOINT</strong></span>
+            <span>GET /api/summary</span>
+            <span><strong>STATUS</strong> <span id="summary-state">PENDING</span></span>
+          </div>
+        </div>
+
+        <div class="summary-hero" id="summary-hero">
+          <div class="hero-card hero-card--cyan">
+            <div class="hero-eyebrow">Total Estimated Impact</div>
+            <div class="hero-value" id="hero-impact">—</div>
+            <div class="hero-sub">PIPELINE_NET_BENEFIT_USD</div>
+          </div>
+          <div class="hero-card hero-card--green">
+            <div class="hero-eyebrow">Completed Experiments</div>
+            <div class="hero-value" id="hero-precision">—</div>
+            <div class="hero-sub">EXP_01 + EXP_02 + EXP_03 + EXP_04</div>
+          </div>
+          <div class="hero-card hero-card--purple">
+            <div class="hero-eyebrow">Optimized Cost / Image</div>
+            <div class="hero-value" id="hero-cost">—</div>
+            <div class="hero-sub">VLLM_CONTINUOUS_BATCH</div>
+          </div>
+        </div>
+
+        <div id="summary-lock" style="display:none;" class="card">
+          <div style="padding:40px 24px;text-align:center">
+            <div style="font-size:42px;margin-bottom:16px">🔒</div>
+            <div style="font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:8px">Summary Locked</div>
+            <p style="font-size:13px;color:var(--text-secondary);max-width:460px;margin:0 auto 20px;line-height:1.7">Complete all four experiments to unlock the consolidated summary. The consolidated view becomes available only after each experiment has produced at least one result.</p>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap" id="summary-pending-list"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Experiment Matrix</div>
+            <div class="card-meta"><span id="summary-run-count">0 RUNS</span> · LIVE TELEMETRY</div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="summary-table" id="summary-table">
+              <thead>
+                <tr>
+                  <th>Experiment</th>
+                  <th>Status</th>
+                  <th>Runs</th>
+                  <th>Key Metric 1</th>
+                  <th>Key Metric 2</th>
+                  <th>Key Metric 3</th>
+                </tr>
+              </thead>
+              <tbody id="summary-tbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px; font-family: var(--font-mono);">Loading summary…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px">
+          <div class="card-head">
+            <div class="card-title">Recent Runs</div>
+            <div class="card-meta">LAST 20 SAVED RESULTS</div>
+          </div>
+          <div id="summary-runs" style="font-size:13px">
+            <div style="color:var(--text-muted);padding:24px;text-align:center;font-family:var(--font-mono)">Run experiments to populate this list.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ==================================================================
+    // State
+    // ==================================================================
+    const state = {
+      files: {
+        'exp1-photo': null,
+        'exp1-receipt': null,
+        'exp2-photo': null,
+        'exp3-photo': null,
+      },
+    };
+
+    // ==================================================================
+    // Clock
+    // ==================================================================
+    const clockEl = document.getElementById('clock');
+    function tickClock() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${hh}:${mm}:${ss} UTC`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    // ==================================================================
+    // Theme toggle
+    // ==================================================================
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('poa-theme', next);
+      });
+    }
+
+    // ==================================================================
+    // Health check
+    // ==================================================================
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        if (!res.ok) throw new Error('health not ok');
+        const data = await res.json();
+        document.getElementById('health-text').textContent = 'ONLINE';
+        document.getElementById('health-pill').classList.remove('status-pill--hot');
+        document.getElementById('health-model').textContent = data.model.split('/').pop();
+      } catch {
+        document.getElementById('health-text').textContent = 'OFFLINE';
+        document.getElementById('health-pill').classList.add('status-pill--hot');
+      }
+    }
+    checkHealth();
+
+    // ==================================================================
+    // Tab switching
+    // ==================================================================
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        tabs.forEach(t => t.classList.toggle('is-active', t === tab));
+        panels.forEach(p => p.classList.toggle('is-active', p.dataset.panel === target));
+        if (target === 'summary') loadSummary();
+      });
+    });
+
+    // ==================================================================
+    // Dropzones
+    // ==================================================================
+    document.querySelectorAll('.dropzone').forEach(zone => {
+      const key = zone.dataset.dropzone;
+      const input = zone.querySelector('input[type=file]');
+      const previewImg = zone.querySelector('.preview-img');
+      const previewName = zone.querySelector('.preview-name');
+      const previewMeta = zone.querySelector('.preview-meta');
+      const clearBtn = zone.querySelector('.preview-clear');
+
+      function setFile(file) {
+        if (!file) return;
+        if (!/^image\//.test(file.type)) {
+          showError(key, 'Only JPEG, PNG, and WebP images are supported.');
+          return;
+        }
+        if (file.size > 20 * 1024 * 1024) {
+          showError(key, 'File exceeds 20MB limit.');
+          return;
+        }
+        state.files[key] = file;
+        const url = URL.createObjectURL(file);
+        previewImg.src = url;
+        previewName.textContent = file.name;
+        const kb = (file.size / 1024).toFixed(0);
+        previewMeta.textContent = `${file.type.replace('image/', '').toUpperCase()} · ${kb} KB`;
+        zone.classList.add('is-loaded');
+        clearError(key);
+      }
+
+      zone.addEventListener('click', e => {
+        if (e.target.closest('.preview-clear')) return;
+        input.click();
+      });
+      input.addEventListener('change', e => setFile(e.target.files[0]));
+      ['dragenter', 'dragover'].forEach(ev => {
+        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('is-drag'); });
+      });
+      ['dragleave', 'drop'].forEach(ev => {
+        zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('is-drag'); });
+      });
+      zone.addEventListener('drop', e => {
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          input.files = e.dataTransfer.files;
+          setFile(file);
+        }
+      });
+      clearBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        state.files[key] = null;
+        input.value = '';
+        zone.classList.remove('is-loaded');
+        previewImg.src = '';
+      });
+    });
+
+    // ==================================================================
+    // Error helpers
+    // ==================================================================
+    function showError(key, msg) {
+      const errKey = key.split('-')[0] + '-error';
+      const el = document.getElementById(errKey);
+      if (el) el.innerHTML = `<div class="error-banner">${msg}</div>`;
+    }
+    function clearError(key) {
+      const errKey = key.split('-')[0] + '-error';
+      const el = document.getElementById(errKey);
+      if (el) el.innerHTML = '';
+    }
+
+    // ==================================================================
+    // Progress simulation
+    // ==================================================================
+    function buildProgress(steps) {
+      return `
+        <div class="progress-card">
+          <div class="progress-steps" data-prog>
+            ${steps.map((s, i) => `
+              <div class="progress-step" data-step="${i}">
+                <div class="step-bullet">${i + 1}</div>
+                <span>${s}</span>
+              </div>`).join('')}
+          </div>
+          <div class="progress-bar"><div class="progress-bar-fill" data-prog-fill></div></div>
+        </div>`;
+    }
+    function runProgress(progEl, steps, totalMs) {
+      return new Promise(resolve => {
+        const stepEls = progEl.querySelectorAll('[data-step]');
+        const fill = progEl.querySelector('[data-prog-fill]');
+        const per = totalMs / steps.length;
+        let i = 0;
+        function next() {
+          if (i >= stepEls.length) { resolve(); return; }
+          if (i > 0) stepEls[i - 1].classList.remove('is-active'), stepEls[i - 1].classList.add('is-done');
+          stepEls[i].classList.add('is-active');
+          fill.style.width = `${((i + 1) / steps.length) * 100}%`;
+          i++;
+          setTimeout(next, per);
+        }
+        next();
+      });
+    }
+
+    // ==================================================================
+    // JSON syntax highlighter
+    // ==================================================================
+    function highlightJson(obj) {
+      let s = JSON.stringify(obj, null, 2);
+      s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      s = s.replace(/("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?(e[+-]?\d+)?)/g, m => {
+        let cls = 'n';
+        if (/^"/.test(m)) cls = /:$/.test(m) ? 'k' : 's';
+        else if (/true|false/.test(m)) cls = 'b';
+        else if (/null/.test(m)) return '<span class="null">null</span>';
+        return `<span class="${cls}">${m}</span>`;
+      });
+      return s;
+    }
+
+    function logbox(title, body) {
+      return `
+        <div class="logbox">
+          <div class="logbox-head">
+            <div class="logbox-dots"><span></span><span></span><span></span></div>
+            <div class="logbox-title">${title}</div>
+            <div class="logbox-dots"></div>
+          </div>
+          <div class="logbox-body">${body}</div>
+        </div>`;
+    }
+
+    // ==================================================================
+    // EXPERIMENT 1
+    // ==================================================================
+    // No separate auto-detect — the verify pipeline runs detection as Step 1.
+
+    document.getElementById('exp1-run').addEventListener('click', async () => {
+      const photo = state.files['exp1-photo'];
+      if (!(photo instanceof File)) {
+        showError('exp1-photo', 'Equipment photo is required. Choose an image first.');
+        return;
+      }
+      clearError('exp1-photo');
+
+      const item = document.getElementById('exp1-item').value.trim();
+      const amount = document.getElementById('exp1-amount').value.trim();
+      const date = document.getElementById('exp1-date').value;
+      const vendor = document.getElementById('exp1-vendor').value.trim();
+      const receipt = state.files['exp1-receipt'];
+
+      const resultsEl = document.getElementById('exp1-results');
+      const statusEl = document.getElementById('exp1-status');
+      const btn = document.getElementById('exp1-run');
+      btn.disabled = true; statusEl.textContent = 'RUNNING…';
+
+      resultsEl.innerHTML = buildProgress([
+        'Step 1: Detecting equipment from photo',
+        'Step 2: Searching market analogues',
+        'Step 3: Cross-referencing with receipt',
+        'Compiling evidence chain',
+        'Generating justification report'
+      ]);
+
+      const progPromise = runProgress(resultsEl, [0, 1, 2, 3, 4], 10000);
+
+      const fd = new FormData();
+      fd.append('photo', photo);
+      fd.append('item', item);
+      fd.append('amount', amount);
+      fd.append('date', date);
+      fd.append('vendor', vendor);
+      if (receipt) fd.append('receipt', receipt);
+
+      try {
+        const res = await fetch('/api/experiment1/verify', { method: 'POST', body: fd });
+        await progPromise;
+        const data = await res.json();
+        if (!res.ok) {
+          const parts = [data.error || `HTTP ${res.status}: Request failed`];
+          if (data.detail) parts.push(data.detail);
+          if (data.code) parts.push(`[${data.code}${data.field ? ':' + data.field : ''}]`);
+          throw new Error(parts.join(' — '));
+        }
+        renderExp1(data);
+        statusEl.textContent = 'COMPLETED';
+      } catch (err) {
+        await progPromise;
+        resultsEl.innerHTML = `<div class="error-banner">${escape(err.message)}</div>`;
+        statusEl.textContent = `ERROR: ${err.message.slice(0, 60)}`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    function renderExp1(data) {
+      const r = data.result || {};
+      const pipeline = r.pipeline || {};
+      const detection = pipeline.step1_detection || {};
+      const market = pipeline.step2_market_analysis || {};
+      const ref = pipeline.step3_cross_reference || {};
+      const summary = r.match_summary || {};
+      const items = r.detected_items || [];
+      const verdict = summary.verification_status || 'UNKNOWN';
+      const verdictClass = verdict === 'VERIFIED' ? 'verdict--ok' : (verdict === 'PARTIAL' ? 'verdict--warn' : 'verdict--err');
+      const verdictMark = verdict === 'VERIFIED'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        : (verdict === 'PARTIAL'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>');
+
+      const evidenceChain = (r.evidence_chain || []).map(e =>
+        `<div style="display:flex;gap:8px;padding:6px 0;font-size:13px;align-items:flex-start">
+          <span style="color:${e.supports_match ? 'var(--c-green)' : 'var(--c-orange)'};font-weight:700">${e.supports_match ? '✓' : '⚠'}</span>
+          <div><strong>${escape(e.step)}</strong>: ${escape(e.finding)}</div>
+        </div>`
+      ).join('');
+
+      const discrepancies = (r.discrepancies || []).map(d =>
+        `<div class="item-row" style="border-color: var(--c-orange)">
+          <div class="item-body">
+            <div class="item-name" style="color:var(--c-orange)">${escape(d.field)}</div>
+            <div class="item-sub">Expected: ${escape(d.expected)} · Found: ${escape(d.found)}</div>
+          </div>
+          <span class="item-badge item-badge--err">${escape(d.severity)}</span>
+        </div>`
+      ).join('');
+
+      const matches = (r.matches || []).map(m =>
+        `<div style="display:flex;gap:8px;padding:4px 0;font-size:13px">
+          <span style="color:var(--c-green)">✓</span>
+          <strong>${escape(m.field)}</strong>: ${escape(m.detail)}
+        </div>`
+      ).join('');
+
+      const marketAnalogues = (r.market_analogues || []).map(a =>
+        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px">
+          <div><strong>${escape(a.manufacturer)}</strong> ${escape(a.model)}</div>
+          <div style="color:var(--text-secondary)">${escape(a.type)} · ${escape(a.typical_price_new || '')}</div>
+          <span class="item-badge item-badge--info">${((a.similarity_score || 0) * 100).toFixed(0)}%</span>
+        </div>`
+      ).join('');
+
+      const itemRows = items.map((it, i) => {
+        const condCls = it.condition === 'new' ? 'item-badge--ok' : (it.condition === 'damaged' ? 'item-badge--err' : 'item-badge--warn');
+        return `
+          <div class="item-row">
+            <div class="item-num">${String(i + 1).padStart(2, '0')}</div>
+            <div class="item-body">
+              <div class="item-name">${escape(it.name || 'Unknown')}</div>
+              <div class="item-sub">${escape((it.category || '—').toUpperCase())}${it.visual_brand ? ` · ${escape(it.visual_brand)}` : ''}</div>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span class="item-badge item-badge--info">${(it.confidence * 100).toFixed(0)}%</span>
+              <span class="item-badge ${condCls}">${escape(it.condition || '—')}</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      const recommendation = r.recommendation || 'REVIEW';
+      const recClass = recommendation === 'APPROVE' ? 'item-badge--ok' : (recommendation === 'REJECT' ? 'item-badge--err' : 'item-badge--warn');
+
+      const justification = r.justification || summary.notes || '';
+
+      const html = `
+        <!-- Verdict Banner -->
+        <div class="verdict ${verdictClass}">
+          <div class="verdict-mark">${verdictMark}</div>
+          <div class="verdict-text">
+            <div class="verdict-title">${verdict.replace('_', ' ')}</div>
+            <div class="verdict-sub">TXN ${data.transaction_id || '—'} · ${escape((data.receipt_effective || {}).item || '')} · ${escape((data.receipt_effective || {}).amount || '')}</div>
+          </div>
+          <span class="item-badge ${data.receipt_source === 'ocr' ? 'item-badge--ok' : 'item-badge--warn'}" style="font-size:11px;padding:2px 8px;margin-left:8px">${data.receipt_source === 'ocr' ? 'OCR' : 'FORM'}</span>
+        </div>
+
+        <!-- Recommendation -->
+        <div style="display:flex;gap:8px;align-items:center;padding:12px 16px;background:var(--elev-1);border-radius:8px;margin-bottom:16px">
+          <span style="font-size:13px;color:var(--text-secondary)">Recommendation:</span>
+          <span class="item-badge ${recClass}" style="font-size:14px;padding:4px 16px">${recommendation}</span>
+          <span style="margin-left:auto;font-size:13px;color:var(--text-secondary)">Confidence: ${((summary.overall_confidence || 0) * 100).toFixed(0)}%</span>
+        </div>
+
+        <!-- Receipt Data (OCR vs Form) -->
+        ${data.receipt_effective ? `
+          <div class="subhead"><div class="subhead-text">Receipt Data${data.receipt_source === 'ocr' ? ' (via OCR)' : ' (manual)'}</div><div class="subhead-line"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px;background:var(--elev-1);border-radius:8px;margin-bottom:12px;font-size:13px">
+            <div><span style="color:var(--text-secondary)">Vendor:</span> ${escape(data.receipt_effective.vendor)}</div>
+            <div><span style="color:var(--text-secondary)">Amount:</span> ${escape(data.receipt_effective.amount)}</div>
+            <div><span style="color:var(--text-secondary)">Date:</span> ${escape(data.receipt_effective.date)}</div>
+            <div><span style="color:var(--text-secondary)">Item:</span> ${escape(data.receipt_effective.item)}</div>
+          </div>
+          ${data.receipt_ocr ? `
+            <details style="margin-bottom:16px"><summary style="font-size:12px;color:var(--text-secondary);cursor:pointer">Raw OCR output</summary>
+              <pre style="font-size:11px;padding:8px;background:var(--elev-1);border-radius:4px;overflow-x:auto">${escape(JSON.stringify(data.receipt_ocr, null, 2))}</pre>
+            </details>
+          ` : ''}
+        ` : ''}
+
+        <!-- Justification -->
+        ${justification ? `
+          <div class="subhead"><div class="subhead-text">Justification</div><div class="subhead-line"></div></div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;padding:12px 16px;background:var(--elev-1);border-radius:8px;margin-bottom:16px;border-left:3px solid var(--c-cyan)">
+            ${escape(justification)}
+          </div>
+        ` : ''}
+
+        <!-- Metrics -->
+        <div class="metrics">
+          <div class="metric" style="--metric-color: var(--c-cyan);">
+            <div class="metric-label">Status</div>
+            <div class="metric-value" style="font-size:18px">${verdict}</div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-green);">
+            <div class="metric-label">Confidence</div>
+            <div class="metric-value">${((summary.overall_confidence || 0) * 100).toFixed(0)}<span class="metric-suffix">%</span></div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-orange);">
+            <div class="metric-label">Detected</div>
+            <div class="metric-value">${summary.items_found ?? items.length}<span class="metric-suffix">/${summary.items_in_receipt ?? '—'}</span></div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-purple);">
+            <div class="metric-label">Discrepancies</div>
+            <div class="metric-value">${(r.discrepancies || []).length}</div>
+          </div>
+        </div>
+
+        <!-- Evidence Chain -->
+        ${evidenceChain ? `
+          <div class="subhead"><div class="subhead-text">Evidence Chain</div><div class="subhead-line"></div></div>
+          <div style="padding:8px 16px;background:var(--elev-1);border-radius:8px;margin-bottom:16px">${evidenceChain}</div>
+        ` : ''}
+
+        <!-- Matches -->
+        ${matches ? `
+          <div class="subhead"><div class="subhead-text">Confirmed Matches</div><div class="subhead-line"></div></div>
+          <div style="padding:8px 16px;background:var(--elev-1);border-radius:8px;margin-bottom:16px">${matches}</div>
+        ` : ''}
+
+        <!-- Discrepancies -->
+        ${discrepancies ? `
+          <div class="subhead"><div class="subhead-text">Discrepancies Found</div><div class="subhead-line"></div></div>
+          <div class="items-list" style="margin-bottom:16px">${discrepancies}</div>
+        ` : ''}
+
+        <!-- Step 1: Detected Equipment -->
+        <div class="subhead"><div class="subhead-text">Step 1 · Auto-Detected Equipment</div><div class="subhead-line"></div></div>
+        ${items.length ? `<div class="items-list" style="margin-bottom:16px">${itemRows}</div>` : '<div style="font-size:13px;color:var(--text-secondary);padding:8px 0;margin-bottom:16px">No equipment detected</div>'}
+
+        <!-- Step 2: Market Analogues -->
+        ${marketAnalogues ? `
+          <div class="subhead"><div class="subhead-text">Step 2 · Market Analogues</div><div class="subhead-line"></div></div>
+          <div style="background:var(--elev-1);border-radius:8px;padding:8px 16px;margin-bottom:16px">${marketAnalogues}</div>
+          ${market.market_notes ? `<div style="font-size:12px;color:var(--text-secondary);padding:4px 16px;margin-bottom:16px">${escape(market.market_notes)}</div>` : ''}
+        ` : ''}
+
+        <!-- Raw Response -->
+        <div class="subhead"><div class="subhead-text">Raw Pipeline Response</div><div class="subhead-line"></div></div>
+        ${logbox('experiment1 · full pipeline', highlightJson(r))}
+      `;
+      document.getElementById('exp1-results').innerHTML = html;
+    }
+
+    // ==================================================================
+    // EXPERIMENT 2
+    // ==================================================================
+    document.getElementById('exp2-run').addEventListener('click', async () => {
+      const photo = state.files['exp2-photo'];
+      if (!photo) { showError('exp2-photo', 'Asset photo is required.'); return; }
+      clearError('exp2-photo');
+
+      const erpCategory = document.getElementById('exp2-category').value;
+      const resultsEl = document.getElementById('exp2-results');
+      const statusEl = document.getElementById('exp2-status');
+      const btn = document.getElementById('exp2-run');
+      btn.disabled = true; statusEl.textContent = 'SCANNING…';
+
+      resultsEl.innerHTML = buildProgress([
+        'Encoding photo to base64',
+        'Identifying brand signatures',
+        'Classifying capital equipment',
+        'Estimating recoverable value',
+        'Composing audit report'
+      ]);
+      const progPromise = runProgress(resultsEl, [0, 1, 2, 3, 4], 6000);
+
+      const fd = new FormData();
+      fd.append('photo', photo);
+      fd.append('erp_category', erpCategory);
+
+      try {
+        const res = await fetch('/api/experiment2/scan', { method: 'POST', body: fd });
+        await progPromise;
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        renderExp2(data);
+        statusEl.textContent = 'COMPLETED';
+      } catch (err) {
+        await progPromise;
+        resultsEl.innerHTML = `<div class="error-banner">${err.message}</div>`;
+        statusEl.textContent = 'ERROR';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    function renderExp2(data) {
+      const r = data.result || {};
+      const sum = r.summary || {};
+      const items = r.detected_items || [];
+      const recVal = sum.estimated_recoverable_value || '—';
+      const capCount = sum.capital_equipment_found ?? items.filter(i => i.classification === 'CAPITAL_EQUIPMENT').length;
+
+      const itemRows = items.map((it, i) => {
+        const isCap = it.classification === 'CAPITAL_EQUIPMENT';
+        return `
+          <div class="item-row">
+            <div class="item-num">${String(i + 1).padStart(2, '0')}</div>
+            <div class="item-body">
+              <div class="item-name">${escape(it.name || 'Unknown')}</div>
+              <div class="item-sub">${escape(it.brand || 'NO BRAND')} · ${escape(it.reasoning || '')}</div>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span class="item-badge ${isCap ? 'item-badge--purple' : 'item-badge--info'}">${isCap ? 'CAPITAL' : 'CONSUMABLE'}</span>
+              <span class="item-badge item-badge--ok">${(it.confidence * 100).toFixed(0)}%</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      const html = `
+        <div class="verdict ${capCount > 0 ? 'verdict--warn' : 'verdict--ok'}">
+          <div class="verdict-mark">${capCount > 0
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'}</div>
+          <div class="verdict-text">
+            <div class="verdict-title">${capCount > 0 ? `${capCount} Hidden Capital Asset${capCount > 1 ? 's' : ''} Detected` : 'No Misclassification Found'}</div>
+            <div class="verdict-sub">ERP TAG: ${escape(data.erp_category)} · TXN ${data.transaction_id}</div>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric" style="--metric-color: var(--c-purple);">
+            <div class="metric-label">Capital Equipment</div>
+            <div class="metric-value">${capCount}</div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-cyan);">
+            <div class="metric-label">Total Items</div>
+            <div class="metric-value">${sum.total_items ?? items.length}</div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-green);">
+            <div class="metric-label">Recoverable Value</div>
+            <div class="metric-value" style="font-size: 18px;">${escape(recVal)}</div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-orange);">
+            <div class="metric-label">Consumables</div>
+            <div class="metric-value">${sum.consumables ?? items.filter(i => i.classification === 'CONSUMABLE').length}</div>
+          </div>
+        </div>
+        ${items.length ? `
+          <div class="subhead"><div class="subhead-text">Detected Items</div><div class="subhead-line"></div></div>
+          <div class="items-list">${itemRows}</div>
+        ` : ''}
+        ${sum.recommendation ? `<div class="subhead"><div class="subhead-text">Recommendation</div><div class="subhead-line"></div></div><div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">${escape(sum.recommendation)}</div>` : ''}
+        <div class="subhead"><div class="subhead-text">Raw Response</div><div class="subhead-line"></div></div>
+        ${logbox('experiment2/scan · response.json', highlightJson(r))}
+      `;
+      document.getElementById('exp2-results').innerHTML = html;
+    }
+
+    // ==================================================================
+    // EXPERIMENT 3
+    // ==================================================================
+    document.getElementById('exp3-run').addEventListener('click', async () => {
+      const photo = state.files['exp3-photo'];
+      if (!photo) { showError('exp3-photo', 'Rack photo is required.'); return; }
+      clearError('exp3-photo');
+
+      const nodeLabel = document.getElementById('exp3-node').value.trim();
+      const resultsEl = document.getElementById('exp3-results');
+      const statusEl = document.getElementById('exp3-status');
+      const btn = document.getElementById('exp3-run');
+      btn.disabled = true; statusEl.textContent = 'INSPECTING…';
+
+      resultsEl.innerHTML = buildProgress([
+        'Encoding photo to base64',
+        'Detecting rack-mounted equipment',
+        'Checking patch cord indicators',
+        'Verifying power & LED integration',
+        'Compiling integration verdict'
+      ]);
+      const progPromise = runProgress(resultsEl, [0, 1, 2, 3, 4], 6000);
+
+      const fd = new FormData();
+      fd.append('photo', photo);
+      fd.append('node_label', nodeLabel);
+
+      try {
+        const res = await fetch('/api/experiment3/inspect', { method: 'POST', body: fd });
+        await progPromise;
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        renderExp3(data);
+        statusEl.textContent = 'COMPLETED';
+      } catch (err) {
+        await progPromise;
+        resultsEl.innerHTML = `<div class="error-banner">${err.message}</div>`;
+        statusEl.textContent = 'ERROR';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    function renderExp3(data) {
+      const r = r => r;
+      const result = data.result || {};
+      const status = result.integration_status || {};
+      const score = result.integration_score ?? 0;
+      const verdict = result.verdict || 'UNKNOWN';
+      const verdictClass = verdict === 'FULLY_INTEGRATED' ? 'verdict--ok' : (verdict === 'PARTIALLY_INTEGRATED' ? 'verdict--warn' : 'verdict--err');
+      const verdictMark = verdict === 'FULLY_INTEGRATED'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        : (verdict === 'PARTIALLY_INTEGRATED'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>');
+
+      const indicators = [
+        { k: 'patch_cords_connected', label: 'Patch Cords Inserted', conf: 'patch_cords_confidence' },
+        { k: 'power_connected', label: 'Power Cables Connected', conf: 'power_confidence' },
+        { k: 'link_leds_lit', label: 'Link LEDs Illuminated', conf: 'leds_confidence' },
+        { k: 'cable_management_populated', label: 'Cable Mgmt Populated', conf: 'cable_mgmt_confidence' },
+      ];
+
+      const indicatorHtml = indicators.map(ind => {
+        const on = status[ind.k];
+        const conf = status[ind.conf] || 0;
+        return `
+          <div class="indicator">
+            <div class="indicator-led ${on ? 'is-on' : 'is-off'}"></div>
+            <div class="indicator-body">
+              <div class="indicator-name">${ind.label}</div>
+              <div class="indicator-sub">${on ? 'VERIFIED' : 'NOT DETECTED'}</div>
+            </div>
+            <div class="indicator-conf">${(conf * 100).toFixed(0)}%</div>
+          </div>`;
+      }).join('');
+
+      const equipment = (result.detected_equipment || []).map((eq, i) => `
+        <div class="item-row">
+          <div class="item-num">${String(i + 1).padStart(2, '0')}</div>
+          <div class="item-body">
+            <div class="item-name">${escape(eq.name || 'Unknown')}</div>
+            <div class="item-sub">${escape((eq.type || '—').toUpperCase())} · LED: ${escape(eq.led_status || 'n/a')}</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <span class="item-badge ${eq.has_cables ? 'item-badge--ok' : 'item-badge--err'}">${eq.has_cables ? 'CABLED' : 'NO CABLE'}</span>
+            <span class="item-badge ${eq.has_power ? 'item-badge--ok' : 'item-badge--err'}">${eq.has_power ? 'POWERED' : 'NO PWR'}</span>
+          </div>
+        </div>`).join('');
+
+      const html = `
+        <div class="verdict ${verdictClass}">
+          <div class="verdict-mark">${verdictMark}</div>
+          <div class="verdict-text">
+            <div class="verdict-title">${verdict.replace(/_/g, ' ')}</div>
+            <div class="verdict-sub">NODE: ${escape(data.node_label)} · TXN ${data.transaction_id}</div>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric" style="--metric-color: var(--c-cyan);">
+            <div class="metric-label">Integration Score</div>
+            <div class="metric-value">${score}<span class="metric-suffix">/4</span></div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-green);">
+            <div class="metric-label">Patch Cords</div>
+            <div class="metric-value">${status.patch_cords_connected ? 'YES' : 'NO'}</div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-orange);">
+            <div class="metric-label">Power</div>
+            <div class="metric-value">${status.power_connected ? 'YES' : 'NO'}</div>
+          </div>
+          <div class="metric" style="--metric-color: var(--c-purple);">
+            <div class="metric-label">LEDs</div>
+            <div class="metric-value">${status.link_leds_lit ? 'LIT' : 'DARK'}</div>
+          </div>
+        </div>
+        <div class="subhead"><div class="subhead-text">Integration Indicators</div><div class="subhead-line"></div></div>
+        <div class="indicators">${indicatorHtml}</div>
+        ${equipment ? `
+          <div class="subhead"><div class="subhead-text">Detected Equipment</div><div class="subhead-line"></div></div>
+          <div class="items-list">${equipment}</div>
+        ` : ''}
+        ${result.audit_notes ? `<div class="subhead"><div class="subhead-text">Audit Notes</div><div class="subhead-line"></div></div><div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">${escape(result.audit_notes)}</div>` : ''}
+        <div class="subhead"><div class="subhead-text">Raw Response</div><div class="subhead-line"></div></div>
+        ${logbox('experiment3/inspect · response.json', highlightJson(result))}
+      `;
+      document.getElementById('exp3-results').innerHTML = html;
+    }
+
+    // ==================================================================
+    // EXPERIMENT 4
+    // ==================================================================
+    document.querySelectorAll('[data-preset]').forEach(b => {
+      b.addEventListener('click', () => {
+        const map = { small: 1000, mid: 10000, large: 100000, huge: 1000000 };
+        document.getElementById('exp4-count').value = map[b.dataset.preset];
+      });
+    });
+
+    document.getElementById('exp4-run').addEventListener('click', async () => {
+      const imageCount = parseInt(document.getElementById('exp4-count').value) || 10000;
+      const mode = document.getElementById('exp4-mode').value;
+      const resultsEl = document.getElementById('exp4-results');
+      const statusEl = document.getElementById('exp4-status');
+      const btn = document.getElementById('exp4-run');
+      btn.disabled = true; statusEl.textContent = 'BENCHMARKING…';
+
+      resultsEl.innerHTML = buildProgress([
+        `Profiling workload: ${imageCount.toLocaleString()} images`,
+        'Spinning baseline synchronous loop',
+        'Simulating vLLM continuous batching',
+        'Computing throughput deltas',
+        'Finalizing comparison report'
+      ]);
+      const progPromise = runProgress(resultsEl, [0, 1, 2, 3, 4], 6000);
+
+      try {
+        const res = await fetch('/api/experiment4/benchmark', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_count: imageCount, mode })
+        });
+        await progPromise;
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        renderExp4(data);
+        statusEl.textContent = 'COMPLETED';
+      } catch (err) {
+        await progPromise;
+        resultsEl.innerHTML = `<div class="error-banner">${err.message}</div>`;
+        statusEl.textContent = 'ERROR';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    function renderExp4(data) {
+      const r = data.result || {};
+      const baseline = r.baseline;
+      const optimized = r.optimized;
+      const cmp = r.comparison || {};
+
+      const card = (cfg, metrics, cls) => `
+        <div class="compare-card ${cls}">
+          <div class="compare-tag">${escape(cfg.batch_size ? `BATCH=${cfg.batch_size}` : 'BATCH=1')} · ${escape(metrics.gpu_utilization * 100 + '%')} GPU</div>
+          <div class="compare-name">${escape(cls.includes('baseline') ? 'Baseline' : 'Optimized')}</div>
+          <div class="compare-rows">
+            <div class="compare-row"><span class="compare-key">Mode</span><span class="compare-val">${escape((cls.includes('baseline') ? 'sync' : 'vLLM'))}</span></div>
+            <div class="compare-row"><span class="compare-key">Resolution</span><span class="compare-val">${escape(cfg.resolution)}</span></div>
+            <div class="compare-row"><span class="compare-key">Cost/Image</span><span class="compare-val">$${metrics.cost_per_image.toFixed(3)}</span></div>
+            <div class="compare-row"><span class="compare-key">Total Cost</span><span class="compare-val">$${metrics.total_cost.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+            <div class="compare-row"><span class="compare-key">Latency/Image</span><span class="compare-val">${metrics.latency_per_image_ms.toFixed(0)} ms</span></div>
+            <div class="compare-row"><span class="compare-key">Total Time</span><span class="compare-val">${escape(metrics.total_time_formatted)}</span></div>
+            <div class="compare-row"><span class="compare-key">Throughput</span><span class="compare-val">${metrics.throughput_images_per_second.toFixed(2)} img/s</span></div>
+          </div>
+        </div>`;
+
+      const cmpHtml = (baseline && optimized) ? `
+        <div class="savings-banner">
+          <div class="savings-cell">
+            <div class="savings-label">Cost Reduction</div>
+            <div class="savings-value">${cmp.cost_reduction_percent ?? '—'}%</div>
+          </div>
+          <div class="savings-cell">
+            <div class="savings-label">Speedup</div>
+            <div class="savings-value savings-value--orange">${cmp.speedup_factor ?? '—'}×</div>
+          </div>
+          <div class="savings-cell">
+            <div class="savings-label">Absolute Savings</div>
+            <div class="savings-value savings-value--purple">$${(cmp.savings_absolute ?? 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+          </div>
+          <div class="savings-cell">
+            <div class="savings-label">F1 Impact</div>
+            <div class="savings-value" style="color: var(--c-cyan); font-size: 18px;">${(cmp.f1_impact ?? 0).toFixed(3)}</div>
+          </div>
+        </div>` : '';
+
+      const compareGrid = (baseline && optimized) ? `
+        <div class="compare-grid">
+          ${card(baseline.config, baseline.metrics, 'compare-card--baseline')}
+          ${card(optimized.config, optimized.metrics, 'compare-card--optimized')}
+        </div>` : '';
+
+      const singleCard = baseline ? card(baseline.config, baseline.metrics, 'compare-card--baseline') :
+                          optimized ? card(optimized.config, optimized.metrics, 'compare-card--optimized') : '';
+
+      const html = `
+        <div class="verdict verdict--info">
+          <div class="verdict-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+          <div class="verdict-text">
+            <div class="verdict-title">Benchmark Complete</div>
+            <div class="verdict-sub">${data.result.image_count.toLocaleString()} IMAGES · MODE=${escape((data.result.optimized || data.result.baseline) ? 'COMPLETE' : '')} · TXN ${data.transaction_id}</div>
+          </div>
+        </div>
+        ${cmpHtml}
+        ${compareGrid || singleCard}
+        <div class="subhead"><div class="subhead-text">Raw Response</div><div class="subhead-line"></div></div>
+        ${logbox('experiment4/benchmark · response.json', highlightJson(r))}
+      `;
+      document.getElementById('exp4-results').innerHTML = html;
+    }
+
+    // ==================================================================
+    // SUMMARY
+    // ==================================================================
+    async function loadSummary() {
+      const stateEl = document.getElementById('summary-state');
+      const tbody = document.getElementById('summary-tbody');
+      const runsEl = document.getElementById('summary-runs');
+      const lockEl = document.getElementById('summary-lock');
+      const pendingEl = document.getElementById('summary-pending-list');
+      const heroImpact = document.getElementById('hero-impact');
+      const heroPrecision = document.getElementById('hero-precision');
+      const heroCost = document.getElementById('hero-cost');
+      stateEl.textContent = 'LOADING';
+      try {
+        const res = await fetch('/api/summary');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Summary failed');
+
+        if (data.locked) {
+          lockEl.style.display = 'block';
+          document.querySelector('.card #summary-table').closest('.card').style.display = 'none';
+          document.getElementById('summary-runs').closest('.card').style.display = 'none';
+          heroImpact.textContent = '—';
+          heroPrecision.textContent = `${4 - (data.pending_experiments || []).length}/4`;
+          heroCost.textContent = '—';
+          pendingEl.innerHTML = (data.pending_experiments || []).map(id =>
+            `<span style="background:var(--bg-elev-2);border:1px solid var(--border-soft);padding:4px 10px;border-radius:6px;font-size:12px;color:var(--text-secondary)">Experiment 0${id}</span>`
+          ).join('');
+          stateEl.textContent = 'LOCKED';
+          return;
+        }
+
+        lockEl.style.display = 'none';
+        document.querySelector('.card #summary-table').closest('.card').style.display = 'block';
+        document.getElementById('summary-runs').closest('.card').style.display = 'block';
+
+        heroImpact.textContent = data.total_estimated_impact || '—';
+        heroPrecision.textContent = '4/4';
+        const cpi = (data.benchmark && data.benchmark.optimized && data.benchmark.optimized.metrics)
+          ? '$' + data.benchmark.optimized.metrics.cost_per_image.toFixed(3)
+          : '—';
+        heroCost.textContent = cpi;
+        document.getElementById('summary-run-count').textContent = `${data.total_runs || 0} RUNS`;
+
+        const exps = data.experiments || [];
+        tbody.innerHTML = exps.map(e => {
+          const m = e.metrics || {};
+          const keys = Object.keys(m).filter(k => k !== 'confidence');
+          const cells = keys.slice(0, 3).map(k => {
+            const v = m[k];
+            const display = (v === null || v === undefined) ? '—' : String(v);
+            return `<td><span class="st-cell-mono">${escape(display)}</span><div class="st-cell-dim">${k.replace(/_/g, ' ').toUpperCase()}</div></td>`;
+          }).join('');
+          return `
+            <tr>
+              <td>
+                <div class="st-name">
+                  <div class="st-num">${String(e.id).padStart(2, '0')}</div>
+                  <div class="st-name-text">${escape(e.name)}</div>
+                </div>
+              </td>
+              <td><span class="st-pill st-pill--ok st-pill--dot">COMPLETED</span></td>
+              <td><span class="st-cell-mono">${e.run_count || 0}</span></td>
+              ${cells}
+            </tr>`;
+        }).join('');
+
+        const runs = (data.all_results || []).slice().reverse();
+        runsEl.innerHTML = runs.map(r => {
+          let detail = '';
+          if (r.experiment === 1) detail = `${r.verdict || '—'} · ${r.recommendation || '—'} · ${r.receipt_source || 'form'}`;
+          else if (r.experiment === 2) detail = `capital=${r.capital_equipment_found ?? 0} · consumables=${r.consumables ?? 0} · recoverable=${r.recoverable_value || '—'}`;
+          else if (r.experiment === 3) detail = `score=${r.integration_score ?? '—'}/4 · ${r.verdict || '—'}`;
+          else if (r.experiment === 4) detail = `cost ${r.baseline_cost_per_image || '—'} → ${r.optimized_cost_per_image || '—'} · ${r.speedup || '—'}× speedup`;
+          const ts = r.saved_at ? new Date(r.saved_at).toLocaleString() : '—';
+          return `
+            <div style="display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04)">
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--c-cyan)">EXP-0${r.experiment}</span>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">${r.transaction_id || '—'}</span>
+              <span style="flex:1;color:var(--text-secondary)">${escape(detail)}</span>
+              <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">${ts}</span>
+            </div>`;
+        }).join('');
+
+        stateEl.textContent = 'LIVE';
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--c-red);">${escape(err.message)}</td></tr>`;
+        runsEl.innerHTML = `<div style="color:var(--c-red);padding:24px;text-align:center">${escape(err.message)}</div>`;
+        stateEl.textContent = 'ERROR';
+      }
+    }
+
+    // ==================================================================
+    // Utilities
+    // ==================================================================
+    function escape(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+  </script>
+
+  <div class="modal-overlay" id="info-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="info-modal-title">How It Works</div>
+        <button class="modal-close" onclick="closeInfoModal()">Esc</button>
+      </div>
+      <div class="modal-body" id="info-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    function openInfoModal(n) { document.getElementById('info-modal').classList.add('is-open'); document.getElementById('info-modal-title').textContent = 'How Experiment ' + n + ' Works'; document.getElementById('info-modal-body').innerHTML = INFO_CONTENT[n] || ''; }
+    function closeInfoModal() { document.getElementById('info-modal').classList.remove('is-open'); }
+    document.getElementById('info-modal').addEventListener('click', function(e) { if (e.target === this) closeInfoModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeInfoModal(); });
+
+    var INFO_CONTENT = {};
+
+    INFO_CONTENT[1] = '<h3>What It Does</h3>' +
+      '<p>This experiment cross-references <strong>equipment visible in a photograph</strong> against a <strong>receipt or invoice</strong> to detect phantom invoicing, duplicate billing, or vendor fraud. It uses a Vision-Language Model (Qwen2.5-VL-72B) for all three analysis stages.</p>' +
+      '<h3>Input Fields</h3>' +
+      '<ul>' +
+        '<li><strong>Equipment Photo</strong> (required) — JPEG, PNG, or WebP image of IT hardware (server, switch, rack, etc.)</li>' +
+        '<li><strong>Receipt</strong> (optional) — photo of the purchase receipt/invoice. If provided, OCR extracts real line items automatically. If omitted, the manual fields below are used.</li>' +
+        '<li><strong>Item Name</strong> — equipment description from the receipt</li>' +
+        '<li><strong>Amount, Date, Vendor</strong> — receipt metadata. When OCR is available, these serve as fallback values.</li>' +
+      '</ul>' +
+      '<h3>3-Step Pipeline</h3>' +
+      '<div class="step-flow">' +
+        '<div class="step"><div class="step-num">1</div><div><div class="step-title">Equipment Detection</div><div class="step-desc">The photo is base64-encoded and sent to the Vision-LLM. The model returns structured JSON with name, brand, model number, category (server/switch/router), confidence (0–1), and physical condition.</div></div></div>' +
+        '<div class="step"><div class="step-num">2</div><div><div class="step-title">Market Analogue Search</div><div class="step-desc">The model searches its training knowledge for comparable products from other manufacturers (HPE, Lenovo, Cisco), typical price ranges (new/used), and EOL/supply-chain status. Text-only LLM call — no image needed.</div></div></div>' +
+        '<div class="step"><div class="step-num">3</div><div><div class="step-title">Cross-Reference &amp; Verdict</div><div class="step-desc">The model compares detection results, market data, and receipt line items. It produces an <strong>evidence chain</strong> (step-by-step findings), <strong>matches</strong> and <strong>discrepancies</strong>, a <strong>verdict</strong> (VERIFIED / PARTIAL / NOT_VERIFIED), and a <strong>recommendation</strong> (APPROVE / REVIEW / REJECT).</div></div></div>' +
+      '</div>' +
+      '<h3>Receipt Handling</h3>' +
+      '<p>If you upload a receipt image, the system runs <strong>OCR</strong> (via Vision-LLM) to extract vendor, date, total, and line items. OCR data <strong>overrides</strong> manual form fields. The results header shows an <code style="background:var(--bg-elev-3);padding:1px 5px;border-radius:3px">OCR</code> or <code style="background:var(--bg-elev-3);padding:1px 5px;border-radius:3px">FORM</code> badge.</p>' +
+      '<h3>Image Handling</h3>' +
+      '<p>All images are real — uploaded from your browser, saved temporarily to disk, base64-encoded, and sent to OpenRouter API. Files are <strong>deleted after processing</strong>. No mocks, no placeholder URLs.</p>';
+
+    INFO_CONTENT[2] = '<h3>What It Does</h3>' +
+      '<p>This experiment scans a photograph for <strong>high-value capital equipment</strong> that has been misclassified in the ERP system as general consumables or materials. It recovers phantom assets worth thousands of dollars in unaccounted depreciation.</p>' +
+      '<h3>Input Fields</h3>' +
+      '<ul>' +
+        '<li><strong>Equipment Photo</strong> (required) — JPEG, PNG, or WebP image showing the items to classify</li>' +
+        '<li><strong>ERP Category</strong> — the current classification in the ERP system (e.g. "Consumables", "Materials", "Office Supplies")</li>' +
+      '</ul>' +
+      '<h3>1-Step Pipeline</h3>' +
+      '<div class="step-flow">' +
+        '<div class="step"><div class="step-num">1</div><div><div class="step-title">Asset Classification</div><div class="step-desc">The photo is sent to the Vision-LLM with a prompt describing ERP misclassification patterns. The model analyzes every visible item and classifies each as <strong>CAPITAL_EQUIPMENT</strong> or <strong>CONSUMABLE</strong>. It looks for professional brand logos (Makita, Hilti, Bosch Pro, DeWalt, Fluke), specialized tool geometry, industrial-grade construction, model/serial plates. Returns a summary with estimated recoverable value.</div></div></div>' +
+      '</div>' +
+      '<h3>Classification Rules</h3>' +
+      '<ul>' +
+        '<li><strong>Capital Equipment indicators:</strong> professional brand logos, specialized tool geometry, digital displays, precision dials, metal housings, model/serial number plates, pro-grade features</li>' +
+        '<li><strong>Consumable indicators:</strong> simple packaging, cables, fasteners, connectors, cable ties, adhesive, basic hand tools without brand marking</li>' +
+      '</ul>' +
+      '<h3>Output</h3>' +
+      '<p>Returns a list of detected items with classification, confidence, brand, estimated value (low/medium/high), and reasoning. Summary includes <strong>total capital equipment found</strong> and <strong>estimated recoverable value</strong>.</p>' +
+      '<h3>Image Handling</h3>' +
+      '<p>Real base64-encoded image sent to OpenRouter API. Deleted after processing.</p>';
+
+    INFO_CONTENT[3] = '<h3>What It Does</h3>' +
+      '<p>This experiment verifies that mounted equipment is <strong>not just physically present but functionally integrated</strong>. It catches fraudulent acceptance certificates where hardware is installed in racks but never actually cabled or powered — a common fraud pattern in data center deployments.</p>' +
+      '<h3>Input Fields</h3>' +
+      '<ul>' +
+        '<li><strong>Infrastructure Photo</strong> (required) — JPEG, PNG, or WebP close-up of the equipment faceplate/ports</li>' +
+        '<li><strong>Node Label</strong> — identifier for the infrastructure node (e.g. "rack-01-switch-A")</li>' +
+      '</ul>' +
+      '<h3>1-Step Pipeline</h3>' +
+      '<div class="step-flow">' +
+        '<div class="step"><div class="step-num">1</div><div><div class="step-title">4-Indicator Integration Audit</div><div class="step-desc">The photo is sent to the Vision-LLM which inspects four integration indicators: <strong>(1) Patch Cords</strong> — are network cables inserted into ports? <strong>(2) Power Connectivity</strong> — are power cables connected to PSU slots? <strong>(3) Link LEDs</strong> — are front-panel activity LEDs illuminated? <strong>(4) Cable Management</strong> — are cable management channels populated? Each indicator gets a boolean and confidence score.</div></div></div>' +
+      '</div>' +
+      '<h3>Verdict Scale</h3>' +
+      '<ul>' +
+        '<li><strong>FULLY_INTEGRATED</strong> — all 4 indicators verified (score 4/4)</li>' +
+        '<li><strong>PARTIALLY_INTEGRATED</strong> — some indicators verified (score 1–3/4)</li>' +
+        '<li><strong>NOT_INTEGRATED</strong> — no functional integration detected (score 0/4). <em>This is a red flag for fraudulent acceptance.</em></li>' +
+      '</ul>' +
+      '<h3>Output</h3>' +
+      '<p>Returns integration status for each indicator, overall integration score (0–4), verdict, and detected equipment with per-item cable/power/LED status.</p>' +
+      '<h3>Image Handling</h3>' +
+      '<p>Real base64-encoded image sent to OpenRouter API. Deleted after processing.</p>';
+
+    INFO_CONTENT[4] = '<h3>What It Does</h3>' +
+      '<p>This experiment models the <strong>cost and throughput</strong> of processing large image corpora through the PoA pipeline. It compares two modes: synchronous sequential API calls (baseline) vs. vLLM continuous batching (optimized). This is a <strong>mathematical simulation</strong> — no real model calls are made.</p>' +
+      '<h3>Input Fields</h3>' +
+      '<ul>' +
+        '<li><strong>Image Count</strong> — number of images to model (default 10,000)</li>' +
+        '<li><strong>Mode</strong> — "baseline" (sync only), "optimized" (batching only), or "both" (side-by-side comparison)</li>' +
+      '</ul>' +
+      '<h3>Comparison</h3>' +
+      '<div class="step-flow">' +
+        '<div class="step"><div class="step-num">A</div><div><div class="step-title">Synchronous Baseline</div><div class="step-desc">One image per API call, sequential processing. GPU utilization: 38%. Latency: 4.2s/image. Cost: $0.12/image. Total for 10K images: ~11.7 hours, $1,200.</div></div></div>' +
+        '<div class="step"><div class="step-num">B</div><div><div class="step-title">vLLM Continuous Batching</div><div class="step-desc">Multiple images batched per forward pass. GPU utilization: 91%. Latency: 170ms/image. Cost: $0.042/image. Total for 10K images: ~28 minutes, $420.</div></div></div>' +
+      '</div>' +
+      '<h3>Result Metrics</h3>' +
+      '<ul>' +
+        '<li><strong>Cost Reduction:</strong> 65% ($0.12 → $0.042 per image)</li>' +
+        '<li><strong>Speedup:</strong> 25× (4,200ms → 170ms per image)</li>' +
+        '<li><strong>GPU Utilization:</strong> 38% → 91%</li>' +
+        '<li><strong>Throughput:</strong> 0.24 img/s → 5.88 img/s</li>' +
+      '</ul>' +
+      '<h3>Notes</h3>' +
+      '<p>This is a computational model — no actual images or API calls are involved. In production, this would interface with a vLLM deployment serving the Qwen2.5-VL model. The constants are derived from published vLLM benchmarks for vision-language models on A100/H100 GPUs.</p>';
+
+  </script>
+</body>
+</html>

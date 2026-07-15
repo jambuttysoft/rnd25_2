@@ -1,0 +1,92 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: PoA
+        - generic [ref=e7]:
+          - generic [ref=e8]: Verification Pipeline
+          - generic [ref=e9]: Multimodal Physical Trace Analysis
+      - generic [ref=e10]:
+        - generic [ref=e13]: qwen2.5-vl-72b-instruct
+        - generic [ref=e16]: ONLINE
+        - generic [ref=e17]: 17:58:52 UTC
+    - navigation [ref=e18]:
+      - generic [ref=e19]:
+        - button "EXP_01 Equipment Verification" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: EXP_01
+          - generic [ref=e22]: Equipment Verification
+        - button "EXP_02 Hidden Asset Detection" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: EXP_02
+          - generic [ref=e26]: Hidden Asset Detection
+        - button "EXP_03 Infrastructure Integrity" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: EXP_03
+          - generic [ref=e30]: Infrastructure Integrity
+        - button "EXP_04 Scalability" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: EXP_04
+          - generic [ref=e34]: Scalability
+        - button "SMRY Summary" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: SMRY
+          - generic [ref=e38]: Summary
+  - main [ref=e40]:
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]: Experiment 01 — Cross-Reference Trace
+          - heading "Equipment Verification" [level=1] [ref=e45]
+          - paragraph [ref=e46]: Cross-references equipment visible in photographs against financial receipt line items. Detects phantom invoicing, duplicate billing, and missing serial numbers using vision-language analysis.
+        - generic [ref=e47]:
+          - strong [ref=e49]: ENDPOINT
+          - generic [ref=e50]: POST /api/experiment1/verify
+          - generic [ref=e51]:
+            - strong [ref=e52]: MODEL
+            - text: VLM-72B
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]: Input Parameters
+            - generic [ref=e57]: 4 fields · 2 uploads
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - generic [ref=e62]:
+                  - text: Item Name
+                  - generic [ref=e63]: "*"
+                - textbox "Dell PowerEdge R750 Server" [ref=e64]
+              - generic [ref=e65]:
+                - generic [ref=e66]: Amount
+                - textbox "$12,450.00" [ref=e67]
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - generic [ref=e70]: Purchase Date
+                - textbox [ref=e71]: 2026-03-15
+              - generic [ref=e72]:
+                - generic [ref=e73]: Vendor
+                - textbox "Dell Technologies" [ref=e74]
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - text: Equipment Photo
+                - generic [ref=e77]: "*"
+              - generic [ref=e109] [cursor=pointer]:
+                - img "preview" [ref=e110]
+                - generic [ref=e111]:
+                  - generic [ref=e112]: test-photo.png
+                  - generic [ref=e113]: PNG · 0 KB
+                - button "Remove" [ref=e114]:
+                  - img [ref=e115]
+            - generic [ref=e85]:
+              - generic [ref=e86]: Receipt (optional — OCR)
+              - generic [ref=e88] [cursor=pointer]:
+                - img [ref=e90]
+                - generic [ref=e92]: Upload receipt for OCR
+                - generic [ref=e93]: AUTO-EXTRACT LINE ITEMS
+            - button "Run Analysis" [ref=e94] [cursor=pointer]:
+              - img [ref=e95]
+              - text: Run Analysis
+        - generic [ref=e97]:
+          - generic [ref=e98]:
+            - generic [ref=e99]: Analysis Results
+            - generic [ref=e100]: AWAITING INPUT
+          - generic [ref=e102]:
+            - img [ref=e104]
+            - generic [ref=e107]: No analysis run yet
+            - generic [ref=e108]: CONFIGURE INPUTS · EXECUTE [RUN_ANALYSIS]

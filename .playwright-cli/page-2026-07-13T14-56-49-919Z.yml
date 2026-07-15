@@ -1,0 +1,72 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: PoA
+        - generic [ref=e7]:
+          - generic [ref=e8]: Verification Pipeline
+          - generic [ref=e9]: Multimodal Physical Trace Analysis
+      - generic [ref=e10]:
+        - generic [ref=e13]: qwen2.5-vl-72b-instruct
+        - generic [ref=e16]: ONLINE
+        - generic [ref=e17]: 17:56:49 UTC
+    - navigation [ref=e18]:
+      - generic [ref=e19]:
+        - button "EXP_01 Equipment Verification" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: EXP_01
+          - generic [ref=e22]: Equipment Verification
+        - button "EXP_02 Hidden Asset Detection" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: EXP_02
+          - generic [ref=e26]: Hidden Asset Detection
+        - button "EXP_03 Infrastructure Integrity" [active] [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: EXP_03
+          - generic [ref=e30]: Infrastructure Integrity
+        - button "EXP_04 Scalability" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: EXP_04
+          - generic [ref=e34]: Scalability
+        - button "SMRY Summary" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: SMRY
+          - generic [ref=e38]: Summary
+  - main [ref=e40]:
+    - generic [ref=e303]:
+      - generic [ref=e304]:
+        - generic [ref=e305]:
+          - generic [ref=e306]: Experiment 03 — Functional Integration Audit
+          - heading "Infrastructure Integrity" [level=1] [ref=e307]
+          - paragraph [ref=e308]: Verifies that mounted equipment is not just physically present but functionally integrated. Catches fraudulent acceptance certificates where hardware is installed but never cabled up.
+        - generic [ref=e309]:
+          - strong [ref=e311]: ENDPOINT
+          - generic [ref=e312]: POST /api/experiment3/inspect
+          - generic [ref=e313]:
+            - strong [ref=e314]: MODEL
+            - text: VLM-72B
+      - generic [ref=e315]:
+        - generic [ref=e316]:
+          - generic [ref=e317]:
+            - generic [ref=e318]: Input Parameters
+            - generic [ref=e319]: 1 field · 1 upload
+          - generic [ref=e321]:
+            - generic [ref=e322]:
+              - generic [ref=e323]:
+                - text: Node Label
+                - generic [ref=e324]: "*"
+              - textbox "RACK-14-DC1" [ref=e325]
+            - generic [ref=e326]:
+              - generic [ref=e327]:
+                - text: Rack Photo
+                - generic [ref=e328]: "*"
+              - generic [ref=e330] [cursor=pointer]:
+                - img [ref=e332]
+                - generic [ref=e334]: Drop rack photo or click to upload
+                - generic [ref=e335]: CHECK 4 INTEGRATION INDICATORS
+            - button "Run Inspection" [ref=e336] [cursor=pointer]:
+              - img [ref=e337]
+              - text: Run Inspection
+        - generic [ref=e339]:
+          - generic [ref=e340]:
+            - generic [ref=e341]: Inspection Results
+            - generic [ref=e342]: AWAITING INPUT
+          - generic [ref=e344]:
+            - img [ref=e346]
+            - generic [ref=e349]: No inspection run yet
+            - generic [ref=e350]: UPLOAD PHOTO · EXECUTE [RUN_INSPECT]

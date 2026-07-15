@@ -1,0 +1,132 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: PoA
+        - generic [ref=e7]:
+          - generic [ref=e8]: Verification Pipeline
+          - generic [ref=e9]: Multimodal Physical Trace Analysis
+      - generic [ref=e10]:
+        - generic [ref=e13]: qwen2.5-vl-72b-instruct
+        - generic [ref=e16]: ONLINE
+        - generic [ref=e17]: 18:00:14 UTC
+    - navigation [ref=e18]:
+      - generic [ref=e19]:
+        - button "EXP_01 Equipment Verification" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: EXP_01
+          - generic [ref=e22]: Equipment Verification
+        - button "EXP_02 Hidden Asset Detection" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: EXP_02
+          - generic [ref=e26]: Hidden Asset Detection
+        - button "EXP_03 Infrastructure Integrity" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: EXP_03
+          - generic [ref=e30]: Infrastructure Integrity
+        - button "EXP_04 Scalability" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: EXP_04
+          - generic [ref=e34]: Scalability
+        - button "SMRY Summary" [active] [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: SMRY
+          - generic [ref=e38]: Summary
+  - main [ref=e40]:
+    - generic [ref=e304]:
+      - generic [ref=e305]:
+        - generic [ref=e306]:
+          - generic [ref=e307]: Consolidated View — Pipeline Telemetry
+          - heading "Summary" [level=1] [ref=e308]
+          - paragraph [ref=e309]: Aggregated view of all four experiments with key performance indicators and the headline estimated financial impact of the verification pipeline.
+        - generic [ref=e310]:
+          - strong [ref=e312]: ENDPOINT
+          - generic [ref=e313]: GET /api/summary
+          - generic [ref=e314]:
+            - strong [ref=e315]: STATUS
+            - text: LIVE
+      - generic [ref=e316]:
+        - generic [ref=e317]:
+          - generic [ref=e318]: Total Estimated Impact
+          - generic [ref=e319]: $4.1M
+          - generic [ref=e320]: PIPELINE_NET_BENEFIT_USD
+        - generic [ref=e321]:
+          - generic [ref=e322]: Avg. Precision / Detection
+          - generic [ref=e323]: 91.3%
+          - generic [ref=e324]: EXP_01 + EXP_02 + EXP_03
+        - generic [ref=e325]:
+          - generic [ref=e326]: Optimized Cost / Image
+          - generic [ref=e327]: $0.042
+          - generic [ref=e328]: VLLM_CONTINUOUS_BATCH
+      - generic [ref=e329]:
+        - generic [ref=e330]:
+          - generic [ref=e331]: Experiment Matrix
+          - generic [ref=e332]: 4 EXPERIMENTS · LIVE TELEMETRY
+        - table [ref=e334]:
+          - rowgroup [ref=e335]:
+            - row "Experiment Status Key Metric 1 Key Metric 2 Key Metric 3" [ref=e336]:
+              - columnheader "Experiment" [ref=e337]
+              - columnheader "Status" [ref=e338]
+              - columnheader "Key Metric 1" [ref=e339]
+              - columnheader "Key Metric 2" [ref=e340]
+              - columnheader "Key Metric 3" [ref=e341]
+          - rowgroup [ref=e342]:
+            - row "01 Equipment Verification READY 92% PRECISION 40% DUPLICATE REDUCTION 0.88 SCS" [ref=e343]:
+              - cell "01 Equipment Verification" [ref=e344]:
+                - generic [ref=e345]:
+                  - generic [ref=e346]: "01"
+                  - generic [ref=e347]: Equipment Verification
+              - cell "READY" [ref=e348]:
+                - generic [ref=e349]: READY
+              - cell "92% PRECISION" [ref=e350]:
+                - text: 92%
+                - generic [ref=e351]: PRECISION
+              - cell "40% DUPLICATE REDUCTION" [ref=e352]:
+                - text: 40%
+                - generic [ref=e353]: DUPLICATE REDUCTION
+              - cell "0.88 SCS" [ref=e354]:
+                - text: "0.88"
+                - generic [ref=e355]: SCS
+            - row "02 Hidden Asset Detection READY 87% PRECISION 15% ASSET RECOVERY $840K RECOVERED VALUE" [ref=e356]:
+              - cell "02 Hidden Asset Detection" [ref=e357]:
+                - generic [ref=e358]:
+                  - generic [ref=e359]: "02"
+                  - generic [ref=e360]: Hidden Asset Detection
+              - cell "READY" [ref=e361]:
+                - generic [ref=e362]: READY
+              - cell "87% PRECISION" [ref=e363]:
+                - text: 87%
+                - generic [ref=e364]: PRECISION
+              - cell "15% ASSET RECOVERY" [ref=e365]:
+                - text: 15%
+                - generic [ref=e366]: ASSET RECOVERY
+              - cell "$840K RECOVERED VALUE" [ref=e367]:
+                - text: $840K
+                - generic [ref=e368]: RECOVERED VALUE
+            - row "03 Infrastructure Integrity READY 95% DETECTION RATE 20% CLAIMS PREVENTED 0.89 KAPPA" [ref=e369]:
+              - cell "03 Infrastructure Integrity" [ref=e370]:
+                - generic [ref=e371]:
+                  - generic [ref=e372]: "03"
+                  - generic [ref=e373]: Infrastructure Integrity
+              - cell "READY" [ref=e374]:
+                - generic [ref=e375]: READY
+              - cell "95% DETECTION RATE" [ref=e376]:
+                - text: 95%
+                - generic [ref=e377]: DETECTION RATE
+              - cell "20% CLAIMS PREVENTED" [ref=e378]:
+                - text: 20%
+                - generic [ref=e379]: CLAIMS PREVENTED
+              - cell "0.89 KAPPA" [ref=e380]:
+                - text: "0.89"
+                - generic [ref=e381]: KAPPA
+            - row "04 Scalability & Optimization READY 65% COST REDUCTION 25x SPEEDUP $0.042 COST PER IMAGE" [ref=e382]:
+              - cell "04 Scalability & Optimization" [ref=e383]:
+                - generic [ref=e384]:
+                  - generic [ref=e385]: "04"
+                  - generic [ref=e386]: Scalability & Optimization
+              - cell "READY" [ref=e387]:
+                - generic [ref=e388]: READY
+              - cell "65% COST REDUCTION" [ref=e389]:
+                - text: 65%
+                - generic [ref=e390]: COST REDUCTION
+              - cell "25x SPEEDUP" [ref=e391]:
+                - text: 25x
+                - generic [ref=e392]: SPEEDUP
+              - cell "$0.042 COST PER IMAGE" [ref=e393]:
+                - text: $0.042
+                - generic [ref=e394]: COST PER IMAGE

@@ -1,0 +1,88 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: PoA
+        - generic [ref=e7]:
+          - generic [ref=e8]: Verification Pipeline
+          - generic [ref=e9]: Multimodal Physical Trace Analysis
+      - generic [ref=e10]:
+        - generic [ref=e13]: qwen2.5-vl-72b-instruct
+        - generic [ref=e16]: ONLINE
+        - generic [ref=e17]: 17:57:14 UTC
+    - navigation [ref=e18]:
+      - generic [ref=e19]:
+        - button "EXP_01 Equipment Verification" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: EXP_01
+          - generic [ref=e22]: Equipment Verification
+        - button "EXP_02 Hidden Asset Detection" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: EXP_02
+          - generic [ref=e26]: Hidden Asset Detection
+        - button "EXP_03 Infrastructure Integrity" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: EXP_03
+          - generic [ref=e30]: Infrastructure Integrity
+        - button "EXP_04 Scalability" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: EXP_04
+          - generic [ref=e34]: Scalability
+        - button "SMRY Summary" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: SMRY
+          - generic [ref=e38]: Summary
+  - main [ref=e40]:
+    - generic [ref=e451]:
+      - generic [ref=e452]:
+        - generic [ref=e453]:
+          - generic [ref=e454]: Experiment 04 — Throughput Benchmark
+          - heading "Scalability & Optimization" [level=1] [ref=e455]
+          - paragraph [ref=e456]: Compares synchronous baseline vs vLLM continuous-batching throughput on large image corpora. Models cost-per-image, GPU utilization, latency, and end-to-end speedup.
+        - generic [ref=e457]:
+          - strong [ref=e459]: ENDPOINT
+          - generic [ref=e460]: POST /api/experiment4/benchmark
+          - generic [ref=e461]:
+            - strong [ref=e462]: MODE
+            - text: SIMULATED
+      - generic [ref=e463]:
+        - generic [ref=e464]:
+          - generic [ref=e465]:
+            - generic [ref=e466]: Benchmark Parameters
+            - generic [ref=e467]: 2 fields · 0 uploads
+          - generic [ref=e469]:
+            - generic [ref=e470]:
+              - generic [ref=e471]:
+                - generic [ref=e472]: Image Count
+                - spinbutton [ref=e473]: "10000"
+              - generic [ref=e474]:
+                - generic [ref=e475]: Mode
+                - combobox [ref=e476] [cursor=pointer]:
+                  - option "Both (compare)" [selected]
+                  - option "Baseline only"
+                  - option "Optimized only"
+            - generic [ref=e477]:
+              - generic [ref=e478]: Workload Profile
+              - generic [ref=e479]:
+                - button "1K" [ref=e480] [cursor=pointer]
+                - button "10K" [ref=e481] [cursor=pointer]
+                - button "100K" [ref=e482] [cursor=pointer]
+                - button "1M" [ref=e483] [cursor=pointer]
+            - button "Run Benchmark" [disabled] [ref=e484]:
+              - img [ref=e485]
+              - text: Run Benchmark
+        - generic [ref=e487]:
+          - generic [ref=e488]:
+            - generic [ref=e489]: Benchmark Results
+            - generic [ref=e490]: BENCHMARKING…
+          - generic [ref=e500]:
+            - generic [ref=e501]:
+              - generic [ref=e502]: "1"
+              - generic [ref=e503]: "Profiling workload: 10,000 images"
+            - generic [ref=e504]:
+              - generic [ref=e505]: "2"
+              - generic [ref=e506]: Spinning baseline synchronous loop
+            - generic [ref=e507]:
+              - generic [ref=e508]: "3"
+              - generic [ref=e509]: Simulating vLLM continuous batching
+            - generic [ref=e510]:
+              - generic [ref=e511]: "4"
+              - generic [ref=e512]: Computing throughput deltas
+            - generic [ref=e513]:
+              - generic [ref=e514]: "5"
+              - generic [ref=e515]: Finalizing comparison report
