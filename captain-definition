@@ -1,0 +1,13 @@
+{
+"schemaVersion": 2,
+"dockerfileLines": [
+"FROM node:22-alpine",
+"WORKDIR /usr/src/app",
+"COPY poa-verifier/package*.json ./",
+"RUN npm install",
+"COPY poa-verifier ./",
+"ENV PORT 3000",
+"EXPOSE 3000",
+"CMD [ \"npm\", \"start\" ]"
+]
+}
